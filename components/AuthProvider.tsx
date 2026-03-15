@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@/lib/types";
 import {
-  getCurrentUser,
   logoutUser,
   registerUser,
   authenticateUser,
@@ -54,7 +53,6 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // Always start null - this matches the server render and prevents hydration mismatch
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -66,46 +64,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     let mounted = true;
 
-    // Fast path: restore from sessionStorage immediately (no network, no flash)
+    // Fast path: show cached user instantly while auth initializes
     const cached = readUserCache();
     if (cached) {
       setUser(cached);
       setLoading(false);
     }
 
-    // Then validate with Supabase in background (with timeout to prevent stuck loading)
-    const initializeAuth = async () => {
-      try {
-        const timeoutPromise = new Promise<null>((resolve) =>
-          setTimeout(() => resolve(null), 8000)
-        );
-        const currentUser = await Promise.race([getCurrentUser(), timeoutPromise]);
-        if (mounted) setUserAndCache(currentUser);
-      } catch {
-        if (mounted) setUserAndCache(null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    initializeAuth();
-
+    // onAuthStateChange is the single source of truth for auth state.
+    // It fires INITIAL_SESSION immediately on registration, so no separate
+    // initializeAuth() call is needed. Having two concurrent getUser() calls
+    // was causing token refresh races that invalidated sessions via Supabase's
+    // refresh token reuse detection.
     const unsubscribe = onAuthStateChange((updatedUser) => {
-      if (mounted) setUserAndCache(updatedUser);
+      if (mounted) {
+        setUserAndCache(updatedUser);
+        setLoading(false);
+      }
     });
+
+    // Safety fallback: resolve loading if INITIAL_SESSION never fires
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 8000);
 
     return () => {
       mounted = false;
+      clearTimeout(timeout);
       unsubscribe();
     };
   }, []);
 
   const login = async (email: string, password: string) => {
     const res = await authenticateUser(email, password);
-    if (res.ok) {
-      const currentUser = await getCurrentUser();
-      setUserAndCache(currentUser);
-    }
+    // onAuthStateChange fires SIGNED_IN and updates user state automatically
     return res;
   };
 
@@ -115,10 +107,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     displayName?: string
   ) => {
     const res = await registerUser(email, password, displayName);
-    if (res.ok && !res.needsEmailConfirmation) {
-      const currentUser = await getCurrentUser();
-      setUserAndCache(currentUser);
-    }
     return res;
   };
 

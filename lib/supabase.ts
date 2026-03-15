@@ -35,7 +35,6 @@ export const supabase = createClient<Database>(
       storageKey: 'closednote-auth',
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      flowType: 'pkce',
     },
     global: {
       headers: {

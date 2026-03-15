@@ -187,27 +187,9 @@ export async function logoutUser(): Promise<void> {
       console.error("[auth] Logout error:", error);
     }
     
-    // Clear all session storage (including auth tokens)
-    if (typeof window !== 'undefined') {
-      try {
-        window.sessionStorage.clear();
-        console.log("[auth] Session storage cleared");
-      } catch (e) {
-        console.warn("[auth] Could not clear session storage:", e);
-      }
-    }
-    
     console.log("[auth] Logout successful");
   } catch (err) {
     console.error("[auth] Logout error:", err);
-    // Even if logout fails, clear session storage
-    if (typeof window !== 'undefined') {
-      try {
-        window.sessionStorage.clear();
-      } catch (e) {
-        console.warn("[auth] Could not clear session storage:", e);
-      }
-    }
   }
 }
 
@@ -245,27 +227,36 @@ export async function deleteAccount(): Promise<
 
 
  // Listen to auth state changes
- 
+
 export function onAuthStateChange(
   callback: (user: User | null) => void
 ): () => void {
   const {
     data: { subscription },
-  } = supabase.auth.onAuthStateChange(async (event, session) => {
+  } = supabase.auth.onAuthStateChange((event, session) => {
     console.log("[auth] Auth state change event:", event, "Session exists:", !!session);
-    
-    if (event === 'SIGNED_OUT') {
-      console.log("[auth] User signed out");
+
+    if (!session?.user) {
       callback(null);
       return;
     }
-    
-    if (session?.user) {
-      const user = await getCurrentUser();
-      callback(user);
-    } else {
-      callback(null);
-    }
+
+    // Build user directly from the session — no extra network calls.
+    // All needed data (id, email, display_name, timestamps) is already present
+    // in the session object. Doing an async DB fetch here caused timing bugs:
+    // multiple in-flight fetches on rapid page loads led to stale callbacks
+    // calling setLoading(false) out of order and leaving the app stuck.
+    const authUser = session.user;
+    callback({
+      id: authUser.id,
+      email: authUser.email || "",
+      displayName:
+        (authUser.user_metadata?.display_name as string | undefined) ||
+        authUser.email?.split("@")[0] ||
+        "User",
+      createdAt: authUser.created_at,
+      updatedAt: authUser.updated_at || authUser.created_at,
+    });
   });
 
   return () => {

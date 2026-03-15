@@ -51,7 +51,7 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     loadPrompts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user?.id]);
 
   const addOptimistic = (prompt: Prompt) => {
     setPrompts((prev) => [prompt, ...prev]);
