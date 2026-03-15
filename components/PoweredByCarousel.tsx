@@ -37,10 +37,12 @@ const stack = [
   {
     name: "Supabase",
     logo: <SupabaseLogo />,
+    comingSoon: false,
   },
   {
     name: "OpenAI",
     logo: <OpenAILogo />,
+    comingSoon: false,
   },
   {
     name: "HuggingFace",
@@ -54,22 +56,28 @@ const stack = [
         unoptimized
       />
     ),
+    comingSoon: false,
   },
   {
     name: "Anthropic",
     logo: <AnthropicLogo />,
+    comingSoon: true,
   },
 ];
 
 export const PoweredByCarousel: React.FC = () => (
   <div className="flex items-center justify-center flex-wrap gap-2">
     {stack.map((item) => (
-      <div
-        key={item.name}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 text-sm"
-      >
-        {item.logo}
-        <span>{item.name}</span>
+      <div key={item.name} className="flex flex-col items-center gap-1">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 text-sm">
+          {item.logo}
+          <span>{item.name}</span>
+        </div>
+        {item.comingSoon && (
+          <span className="text-[10px] tracking-wide text-neutral-400 dark:text-neutral-500">
+            coming soon
+          </span>
+        )}
       </div>
     ))}
   </div>

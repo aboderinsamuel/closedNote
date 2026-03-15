@@ -6,6 +6,15 @@
   body {
     @apply font-sans bg-[#141414] text-neutral-900 dark:text-neutral-100;
   }
+
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
   
   .font-serif-title {
     font-family: Georgia, 'Times New Roman', serif;
