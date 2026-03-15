@@ -14,19 +14,17 @@ interface ChatBody {
   max_tokens?: number;
   temperature?: number;
   userApiKey?: string;
+  userHfKey?: string;
 }
 
-async function callHuggingFace(
+async function callHuggingFaceUser(
+  hfKey: string,
   instruction: string,
   prompt: string,
   max_tokens: number,
-  temperature: number
 ): Promise<string> {
-  const hfKey = process.env.HUGGINGFACE_API_KEY;
-  if (!hfKey) throw new Error("No AI provider configured. Add a HUGGINGFACE_API_KEY or use your own OpenAI key in Settings.");
-
   const res = await fetch(
-    "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.3/v1/chat/completions",
+    "https://router.huggingface.co/v1/chat/completions",
     {
       method: "POST",
       headers: {
@@ -34,13 +32,12 @@ async function callHuggingFace(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "mistralai/Mistral-7B-Instruct-v0.3",
+        model: "HuggingFaceH4/zephyr-7b-beta",
         messages: [
           { role: "system", content: instruction },
           { role: "user", content: prompt },
         ],
         max_tokens: Math.min(max_tokens, 1500),
-        temperature,
       }),
     }
   );
@@ -53,6 +50,7 @@ async function callHuggingFace(
   const data = await res.json() as { choices?: { message?: { content?: string } }[] };
   return data.choices?.[0]?.message?.content?.trim() || "";
 }
+
 
 async function callOpenAI(
   apiKey: string,
@@ -93,6 +91,7 @@ export async function POST(req: Request) {
       max_tokens = 500,
       temperature = 0.7,
       userApiKey = "",
+      userHfKey = "",
     } = body;
 
     if (!prompt.trim()) {
@@ -106,13 +105,16 @@ export async function POST(req: Request) {
     let providerModel: string;
 
     if (userApiKey.trim()) {
-      // User provided their own OpenAI key
       answer = await callOpenAI(userApiKey.trim(), instruction, prompt, model, max_tokens, temperature);
       providerModel = model;
+    } else if (userHfKey.trim()) {
+      answer = await callHuggingFaceUser(userHfKey.trim(), instruction, prompt, max_tokens);
+      providerModel = "zephyr-7b-beta";
     } else {
-      // Fall back to HuggingFace (free, server-side key)
-      answer = await callHuggingFace(instruction, prompt, max_tokens, temperature);
-      providerModel = "mistral-7b-instruct";
+      return NextResponse.json(
+        { error: "Connect your OpenAI or HuggingFace key in Settings to use AI refinement." },
+        { status: 400, headers: noCacheHeaders }
+      );
     }
 
     return NextResponse.json({ model: providerModel, answer }, {

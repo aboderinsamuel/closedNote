@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Layout } from "@/components/Layout";
 import { usePrompts } from "@/lib/hooks/usePrompts";
 import { useAuth } from "@/components/AuthProvider";
 import { savePrompt } from "@/lib/promptData";
-import { getUserApiKey } from "@/lib/userApiKey";
+import { getUserApiKey, getUserHfKey } from "@/lib/userApiKey";
 import { PromptModel } from "@/lib/types";
 
 function OpenAILogo({ className }: { className?: string }) {
@@ -32,7 +32,7 @@ interface RefinementState {
 }
 
 export default function OCRPage() {
-  const { prompts } = usePrompts();
+  const { prompts, refresh } = usePrompts();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,10 +42,19 @@ export default function OCRPage() {
   const [ocrError, setOcrError] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState("");
   const [mode, setMode] = useState<"printed" | "handwritten">("printed");
+  const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
+  const [hasHfKey, setHasHfKey] = useState(false);
   const [chatState, setChatState] = useState<RefinementState>({ loading: false, error: null, answer: "" });
   const [selectedModel, setSelectedModel] = useState<PromptModel>("gpt-4o-mini");
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [ocrModel, setOcrModel] = useState<string | null>(null);
+
+  useEffect(() => {
+    setHasOpenAIKey(!!getUserApiKey());
+    setHasHfKey(!!getUserHfKey());
+  }, []);
+
+  const hasAnyAiKey = hasOpenAIKey || hasHfKey;
 
   const handleFile = (file: File | null) => {
     setOcrError(null);
@@ -73,12 +82,30 @@ export default function OCRPage() {
     setOcrError(null);
     setExtractedText("");
     setOcrModel(null);
+
+    const userKey = getUserApiKey();
+
+    if (!userKey) {
+      // No API key — go straight to Tesseract
+      try {
+        const Tesseract = await import("tesseract.js");
+        const result = await Tesseract.recognize(imageFile, "eng", {});
+        setExtractedText(result.data.text.trim());
+        setOcrModel("tesseract.js (offline)");
+      } catch (offlineErr) {
+        setOcrError(offlineErr instanceof Error ? offlineErr.message : "Offline OCR error");
+      } finally {
+        setOcrLoading(false);
+      }
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("file", imageFile);
       formData.append("mode", mode);
-      const userKey = getUserApiKey();
-      if (userKey) formData.append("userApiKey", userKey);
+      formData.append("provider", "openai");
+      formData.append("userApiKey", userKey);
       const res = await fetch("/api/ocr", { method: "POST", body: formData, cache: "no-store" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "OCR failed");
@@ -89,10 +116,10 @@ export default function OCRPage() {
         throw new Error("Empty OCR result");
       }
     } catch (err) {
-      console.warn("Online OCR failed, attempting offline fallback", err);
+      console.warn("OpenAI OCR failed, attempting offline fallback", err);
       try {
         const Tesseract = await import("tesseract.js");
-        const result = await Tesseract.recognize(imageFile!, "eng", {});
+        const result = await Tesseract.recognize(imageFile, "eng", {});
         setExtractedText(result.data.text.trim());
         setOcrModel("tesseract.js (offline)");
       } catch (offlineErr) {
@@ -109,7 +136,7 @@ export default function OCRPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: extractedText, model: "gpt-4o-mini", userApiKey: getUserApiKey() }),
+        body: JSON.stringify({ prompt: extractedText, model: "gpt-4o-mini", userApiKey: getUserApiKey(), userHfKey: getUserHfKey() }),
         cache: "no-store",
       });
       const data = await res.json();
@@ -131,10 +158,10 @@ export default function OCRPage() {
         content,
         model: selectedModel,
         collection: "ocr",
-        tags: ["ocr", mode],
         createdAt: now,
         updatedAt: now,
       });
+      refresh();
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
@@ -143,6 +170,7 @@ export default function OCRPage() {
   };
 
   const isOffline = ocrModel === "tesseract.js (offline)";
+  const isOpenAI = ocrModel === "gpt-4o-mini";
 
   return (
     <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
@@ -158,6 +186,19 @@ export default function OCRPage() {
           <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-sm">
             <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
             Log in to save extracted prompts to your library.
+          </div>
+        )}
+
+        {!hasAnyAiKey && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 text-blue-800 dark:text-blue-300 text-sm">
+            <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>
+              AI-powered extraction and prompt refinement require an API key.{" "}
+              <a href="/settings" className="underline font-medium hover:text-blue-600 dark:hover:text-blue-200">
+                Connect your OpenAI or HuggingFace key in Settings
+              </a>{" "}
+              to unlock these features. Basic offline OCR still works without a key.
+            </span>
           </div>
         )}
 
@@ -269,11 +310,13 @@ export default function OCRPage() {
                         <OfflineIcon className="w-3.5 h-3.5" />
                         Tesseract (offline)
                       </>
-                    ) : (
+                    ) : isOpenAI ? (
                       <>
                         <OpenAILogo className="w-3.5 h-3.5" />
                         OpenAI
                       </>
+                    ) : (
+                      <>Gemini</>
                     )}
                   </span>
                 )}
@@ -287,26 +330,34 @@ export default function OCRPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={refineWithChat}
-                disabled={chatState.loading}
-                className="flex items-center gap-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-300 dark:text-neutral-900 text-white text-sm font-medium rounded-lg disabled:opacity-40 transition-colors"
-              >
-                {chatState.loading ? (
-                  <>
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Refining...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
-                    Refine with AI
-                  </>
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={refineWithChat}
+                  disabled={chatState.loading || !hasAnyAiKey}
+                  title={!hasAnyAiKey ? "Connect an OpenAI or HuggingFace key in Settings" : undefined}
+                  className="flex items-center gap-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-300 dark:text-neutral-900 text-white text-sm font-medium rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  {chatState.loading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Refining...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                      Refine with AI
+                    </>
+                  )}
+                </button>
+                {!hasAnyAiKey && (
+                  <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                    Requires an <a href="/settings" className="underline hover:text-neutral-600 dark:hover:text-neutral-300">API key</a>
+                  </p>
                 )}
-              </button>
+              </div>
 
               <button
                 onClick={saveRefined}
