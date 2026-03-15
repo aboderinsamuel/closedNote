@@ -123,11 +123,12 @@ export async function getCurrentUser(): Promise<User | null> {
     if (!authUser) return null;
 
     // Fetch user profile from database
-    const { data: profile, error } = await supabase
+    const { data: profileData, error } = await supabase
       .from("users")
       .select("*")
       .eq("id", authUser.id)
       .single();
+    const profile = profileData as { id: string; email: string; display_name: string; created_at: string; updated_at: string } | null;
 
     if (error || !profile) {
       // Profile row missing - build user from auth metadata so login still works
@@ -135,7 +136,6 @@ export async function getCurrentUser(): Promise<User | null> {
       return {
         id: authUser.id,
         email: authUser.email || "",
-        passwordHash: "",
         displayName:
           (authUser.user_metadata?.display_name as string | undefined) ||
           authUser.email?.split("@")[0] ||
@@ -148,7 +148,6 @@ export async function getCurrentUser(): Promise<User | null> {
     return {
       id: profile.id,
       email: profile.email,
-      passwordHash: "",
       displayName: profile.display_name,
       createdAt: profile.created_at,
       updatedAt: profile.updated_at,

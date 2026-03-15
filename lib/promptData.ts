@@ -21,7 +21,7 @@ export async function getAllPrompts(): Promise<Prompt[]> {
       content: p.content,
       model: p.model as PromptModel,
       collection: p.collection,
-      tags: p.tags ? (p.tags as { tag: string }[]).map((t) => t.tag) : [],
+      tags: p.tags ? (p.tags as unknown as { tag: string }[]).map((t) => t.tag) : [],
       createdAt: p.created_at,
       updatedAt: p.updated_at,
     }));

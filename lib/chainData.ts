@@ -1,12 +1,17 @@
 import { PromptChain, ChainStep } from "./types";
 import { supabase } from "./supabase";
+import { Database } from "./database.types";
+
+type ChainRow = Database["public"]["Tables"]["prompt_chains"]["Row"];
+type StepRow = Database["public"]["Tables"]["chain_steps"]["Row"];
 
 export async function getAllChains(): Promise<PromptChain[]> {
   try {
-    const { data: chains, error } = await supabase
+    const { data: chainsData, error } = await supabase
       .from("prompt_chains")
       .select("*")
       .order("created_at", { ascending: false });
+    const chains = chainsData as ChainRow[] | null;
 
     if (error || !chains) {
       console.error("[chainData] Failed to fetch chains:", error);
@@ -16,11 +21,12 @@ export async function getAllChains(): Promise<PromptChain[]> {
     const chainIds = chains.map((c) => c.id);
     if (chainIds.length === 0) return [];
 
-    const { data: steps, error: stepsError } = await supabase
+    const { data: stepsData, error: stepsError } = await supabase
       .from("chain_steps")
       .select("*")
       .in("chain_id", chainIds)
       .order("step_order", { ascending: true });
+    const steps = stepsData as StepRow[] | null;
 
     if (stepsError) {
       console.warn("[chainData] Failed to fetch steps:", stepsError);
@@ -61,19 +67,21 @@ export async function getAllChains(): Promise<PromptChain[]> {
 
 export async function getChainById(id: string): Promise<PromptChain | undefined> {
   try {
-    const { data: chain, error } = await supabase
+    const { data: chainData, error } = await supabase
       .from("prompt_chains")
       .select("*")
       .eq("id", id)
       .single();
+    const chain = chainData as ChainRow | null;
 
     if (error || !chain) return undefined;
 
-    const { data: steps } = await supabase
+    const { data: stepsData2 } = await supabase
       .from("chain_steps")
       .select("*")
       .eq("chain_id", id)
       .order("step_order", { ascending: true });
+    const steps = stepsData2 as StepRow[] | null;
 
     return {
       id: chain.id,
@@ -107,11 +115,12 @@ export async function saveChain(
   if (!user) throw new Error("Not authenticated");
 
   // Check if chain already exists
-  const { data: existing } = await supabase
+  const { data: existingData } = await supabase
     .from("prompt_chains")
     .select("id")
     .eq("id", chain.id)
     .maybeSingle();
+  const existing = existingData as { id: string } | null;
 
   if (existing) {
     const { error } = await supabase

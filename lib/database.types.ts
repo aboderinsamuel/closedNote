@@ -31,6 +31,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       prompts: {
         Row: {
@@ -63,6 +64,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       tags: {
         Row: {
@@ -83,6 +85,7 @@ export interface Database {
           tag?: string
           created_at?: string
         }
+        Relationships: []
       }
       prompt_chains: {
         Row: {
@@ -112,6 +115,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       chain_steps: {
         Row: {
@@ -147,6 +151,7 @@ export interface Database {
           input_mapping?: Json
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: {
@@ -159,6 +164,9 @@ export interface Database {
       }
     }
     Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
       [_ in never]: never
     }
   }
