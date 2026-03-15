@@ -36,7 +36,7 @@ jest.mock("@/lib/hooks/usePrompts", () => ({
 
 const mockSavePrompt = jest.fn(() => Promise.resolve());
 jest.mock("@/lib/promptData", () => ({
-  savePrompt: (...args: unknown[]) => mockSavePrompt(...args),
+  savePrompt: mockSavePrompt,
 }));
 
 jest.mock("@/components/AuthProvider", () => ({
