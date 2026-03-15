@@ -72,7 +72,7 @@ export function Header({ promptCount, showMobileMenu = true }: HeaderProps) {
           >
             <div className="relative">
               <div className="w-full px-4 py-2 pl-10 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-300 rounded-full group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors text-sm">
-                Search prompts, chains, tags...
+                Search prompts, threads, tags...
               </div>
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -143,7 +143,7 @@ export function Header({ promptCount, showMobileMenu = true }: HeaderProps) {
                       </Link>
                       <Link href="/chains" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
                         <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Chains</p>
+                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Threads</p>
                       </Link>
                       {/* OCR - mobile and dropdown only */}
                       <Link href="/ocr" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">

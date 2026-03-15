@@ -55,8 +55,8 @@ export function SearchPalette() {
     () => [
       { id: "home", title: "Home", href: "/", type: "page" },
       { id: "new", title: "New Prompt", href: "/prompts/new", type: "page" },
-      { id: "chains", title: "Chains", subtitle: "Prompt chains & workflows", href: "/chains", type: "page" },
-      { id: "new-chain", title: "New Chain", href: "/chains/new", type: "page" },
+      { id: "chains", title: "Threads", subtitle: "Prompt threads & workflows", href: "/chains", type: "page" },
+      { id: "new-chain", title: "New Thread", href: "/chains/new", type: "page" },
       { id: "ocr", title: "OCR", subtitle: "Extract text from images", href: "/ocr", type: "page" },
       { id: "settings", title: "Settings", href: "/settings", type: "page" },
       { id: "docs", title: "Documentation", href: "/docs", type: "page" },

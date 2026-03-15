@@ -29,7 +29,7 @@ export function Sidebar({ prompts, activeTag }: SidebarProps) {
           href="/chains"
           className="block font-semibold text-neutral-900 dark:text-neutral-100 hover:opacity-70 transition-opacity mb-3"
         >
-          Chains
+          Threads
         </Link>
 
         <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4">

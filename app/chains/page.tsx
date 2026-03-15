@@ -56,7 +56,7 @@ export default function ChainsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-              Prompt Chains
+              Prompt Threads
             </h1>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
               Build multi-step prompt workflows and run them sequentially.
@@ -66,7 +66,7 @@ export default function ChainsPage() {
             href="/chains/new"
             className="inline-flex items-center justify-center px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors self-start sm:self-auto"
           >
-            + New Chain
+            + New Thread
           </Link>
         </div>
 
@@ -81,7 +81,7 @@ export default function ChainsPage() {
         {loading && (
           <div className="flex items-center justify-center py-16">
             <div className="text-sm text-neutral-500 dark:text-neutral-400">
-              Loading chains...
+              Loading threads...
             </div>
           </div>
         )}
@@ -105,16 +105,16 @@ export default function ChainsPage() {
               </svg>
             </div>
             <h2 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
-              No chains yet
+              No threads yet
             </h2>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 max-w-sm">
-              Create your first prompt chain to build multi-step AI workflows. Chain prompts together and run them in sequence.
+              Create your first prompt thread to build multi-step AI workflows. Thread prompts together and run them in sequence.
             </p>
             <Link
               href="/chains/new"
               className="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors"
             >
-              Create your first chain
+              Create your first thread
             </Link>
           </div>
         )}

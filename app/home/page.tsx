@@ -9,7 +9,7 @@ import { useAuth } from "@/components/AuthProvider";
 
 const features = [
   {
-    title: "Prompt Chains",
+    title: "Prompt Threads",
     description: "Thread prompts together in sequences. Each step feeds into the next, building complex AI workflows.",
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

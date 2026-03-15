@@ -73,7 +73,7 @@ export default function NewChainPage() {
     setError(null);
 
     if (!title.trim()) {
-      setError("Please enter a title for your chain.");
+      setError("Please enter a title for your thread.");
       return;
     }
 
@@ -124,11 +124,11 @@ export default function NewChainPage() {
           href="/chains"
           className="inline-flex items-center text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors mb-6 sm:mb-8"
         >
-          &larr; Back to Chains
+          &larr; Back to Threads
         </Link>
 
         <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-6 sm:mb-8">
-          New Chain
+          New Thread
         </h1>
 
         {/* Error display */}
@@ -162,7 +162,7 @@ export default function NewChainPage() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe what this chain does..."
+              placeholder="Describe what this thread does..."
               rows={2}
               className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 resize-y"
             />
@@ -211,7 +211,7 @@ export default function NewChainPage() {
             disabled={saving}
             className="px-6 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? "Saving..." : "Save Chain"}
+            {saving ? "Saving..." : "Save Thread"}
           </button>
           <Link
             href="/chains"
