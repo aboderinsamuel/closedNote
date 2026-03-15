@@ -57,15 +57,22 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
+  // Optimistic update helpers: callers mutate local state immediately so the
+  // UI feels instant, then persist in the background. On failure, they call
+  // refresh() to re-sync with the database and undo the optimistic change.
+
   const addOptimistic = (prompt: Prompt) => {
+    // Prepend so the new prompt appears at the top of the list right away
     setPrompts((prev) => [prompt, ...prev]);
   };
 
   const updateOptimistic = (prompt: Prompt) => {
+    // Swap the existing entry in-place by id
     setPrompts((prev) => prev.map((p) => (p.id === prompt.id ? prompt : p)));
   };
 
   const removeOptimistic = (id: string) => {
+    // Drop the entry immediately; refresh() will restore it if the delete fails
     setPrompts((prev) => prev.filter((p) => p.id !== id));
   };
 

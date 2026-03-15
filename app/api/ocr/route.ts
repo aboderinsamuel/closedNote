@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { getUserFromRequest } from "@/lib/supabase-server";
 
 const noCacheHeaders = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
@@ -40,6 +41,15 @@ async function callOpenAIVision(apiKey: string, arrayBuf: ArrayBuffer, mimeType:
 
 export async function POST(request: Request) {
   try {
+    // Verify the caller is an authenticated user before doing any work
+    const user = await getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401, headers: noCacheHeaders }
+      );
+    }
+
     const contentType = request.headers.get("content-type") || "";
     if (!contentType.includes("multipart/form-data")) {
       return NextResponse.json(

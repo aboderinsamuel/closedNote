@@ -7,6 +7,7 @@ import { usePrompts } from "@/lib/hooks/usePrompts";
 import { useAuth } from "@/components/AuthProvider";
 import { savePrompt } from "@/lib/promptData";
 import { getUserApiKey, getUserHfKey } from "@/lib/userApiKey";
+import { supabase } from "@/lib/supabase";
 import { PromptModel } from "@/lib/types";
 
 function OpenAILogo({ className }: { className?: string }) {
@@ -101,12 +102,20 @@ export default function OCRPage() {
     }
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token ?? "";
+
       const formData = new FormData();
       formData.append("file", imageFile);
       formData.append("mode", mode);
       formData.append("provider", "openai");
       formData.append("userApiKey", userKey);
-      const res = await fetch("/api/ocr", { method: "POST", body: formData, cache: "no-store" });
+      const res = await fetch("/api/ocr", {
+        method: "POST",
+        body: formData,
+        headers: { "Authorization": `Bearer ${authToken}` },
+        cache: "no-store",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "OCR failed");
       if (data.text && data.text.trim()) {
@@ -133,9 +142,15 @@ export default function OCRPage() {
   const refineWithChat = async () => {
     setChatState({ loading: true, error: null, answer: "" });
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token ?? "";
+
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`,
+        },
         body: JSON.stringify({ prompt: extractedText, model: "gpt-4o-mini", userApiKey: getUserApiKey(), userHfKey: getUserHfKey() }),
         cache: "no-store",
       });
