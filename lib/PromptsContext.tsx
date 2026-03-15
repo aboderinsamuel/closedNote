@@ -21,6 +21,8 @@ const PromptsContext = createContext<PromptsContextValue>({
   error: null,
   refresh: async () => {},
   addOptimistic: () => {},
+  updateOptimistic: () => {},
+  removeOptimistic: () => {},
 });
 
 export function PromptsProvider({ children }: { children: React.ReactNode }) {
