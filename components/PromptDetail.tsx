@@ -72,14 +72,14 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         href="/"
         className="inline-flex items-center text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
       >
-        ← Back to prompts
+        &larr; Back to prompts
       </Link>
       {error && (
         <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
           {error}
         </div>
       )}
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6">
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6">
         {editing ? (
           <input
             value={title}
@@ -87,7 +87,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
             className="w-full px-4 py-2 mb-3 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 text-2xl font-semibold"
           />
         ) : (
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
             {prompt.title}
           </h1>
         )}
@@ -111,6 +111,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
             </>
           )}
         </div>
+
         <div className="relative">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -131,12 +132,13 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
               className="w-full p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto text-sm font-mono text-neutral-800 dark:text-neutral-200"
             />
           ) : (
-            <pre className="p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto text-sm font-mono text-neutral-800 dark:text-neutral-200">
+            <pre className="p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto text-sm font-mono text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap">
               <code>{prompt.content}</code>
             </pre>
           )}
         </div>
-        <div className="flex flex-wrap gap-3 pt-2">
+
+        <div className="flex flex-wrap gap-3 pt-4">
           {editing ? (
             <>
               <input

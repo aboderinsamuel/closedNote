@@ -55,10 +55,11 @@ export function SearchPalette() {
     () => [
       { id: "home", title: "Home", href: "/", type: "page" },
       { id: "new", title: "New Prompt", href: "/prompts/new", type: "page" },
+      { id: "chains", title: "Chains", subtitle: "Prompt chains & workflows", href: "/chains", type: "page" },
+      { id: "new-chain", title: "New Chain", href: "/chains/new", type: "page" },
+      { id: "ocr", title: "OCR", subtitle: "Extract text from images", href: "/ocr", type: "page" },
       { id: "settings", title: "Settings", href: "/settings", type: "page" },
       { id: "docs", title: "Documentation", href: "/docs", type: "page" },
-      { id: "login", title: "Login", href: "/login", type: "page" },
-      { id: "signup", title: "Sign up", href: "/signup", type: "page" },
     ],
     []
   );
@@ -196,7 +197,7 @@ export function SearchPalette() {
             )}
           </div>
           <div className="border-t border-neutral-200 dark:border-neutral-800 p-2 text-xs text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
-            <span>Use ↑↓ to navigate • Enter to open • Esc to close</span>
+            <span>Use up/down to navigate | Enter to open | Esc to close</span>
             <span className="hidden sm:inline">Press Ctrl/Cmd+K to toggle</span>
           </div>
         </div>

@@ -1,6 +1,6 @@
 # 🗒️ closedNote
 
-> *"Because even ChatGPT forgets sometimes…"*
+> *"Because even ChatGPT forgets sometimes..."*
 
 ---
 
@@ -177,8 +177,6 @@ Then visit 👉 **[http://localhost:3000](http://localhost:3000)**
 - Add your Vercel domain to **Redirect URLs**: `https://your-app.vercel.app/**`
 - Update **Site URL** to: `https://your-app.vercel.app`
 
-📖 **Detailed deployment guide:** See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
-
 ---
 
 ### 🧰 Developer Notes
@@ -198,7 +196,7 @@ closedNote is **developer-friendly**:
 * ✅ Auth via Supabase (JWT-secured)
 * ✅ `.env.local` excluded from Git (already in `.gitignore`)
 * ✅ HTTPS enforced on production (Vercel)
-* ✅ Minimal data collection — only email + prompts
+* ✅ Minimal data collection - only email + prompts
 
 ---
 
@@ -208,14 +206,6 @@ closedNote is **completely open source** and **open for amendments**.
 The goal is to make prompt saving easier for *everyone*, not just developers.
 
 If you've got ideas, dark mode, AI tag suggestions, team sharing, prompt history, whatever, you're welcome to hop in!
-
-#### 📚 Contributing Resources
-
-- **[Code of Conduct](./docs/CODE_OF_CONDUCT.md)** - Our community standards
-- **[Roadmap](./docs/ROADMAP.md)** - Future features and project vision
-- **[Release Strategy](./docs/RELEASES.md)** - How we ship updates
-- **[Issue Templates](./.github/ISSUE_TEMPLATE/)** - Report bugs or request features
-- **[Pull Request Template](./.github/PULL_REQUEST_TEMPLATE.md)** - Submit your changes
 
 ```bash
 # Steps to contribute

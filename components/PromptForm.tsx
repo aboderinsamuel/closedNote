@@ -5,17 +5,16 @@ import { useRouter } from "next/navigation";
 import { PromptModel } from "@/lib/types";
 import { savePrompt } from "@/lib/promptData";
 import { useAuth } from "./AuthProvider";
+import { usePrompts } from "@/lib/hooks/usePrompts";
 
 export function PromptForm() {
   const router = useRouter();
   const { user } = useAuth();
+  const { addOptimistic, refresh } = usePrompts();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [model, setModel] = useState<PromptModel>("gpt-4");
+  const [model, setModel] = useState<PromptModel>("gpt-4o");
   const [collection, setCollection] = useState("");
-  const [tags, setTags] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,48 +24,37 @@ export function PromptForm() {
       return;
     }
 
-    setSaving(true);
-    setError(null);
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
 
-    try {
-      const id = crypto.randomUUID();
-      const tagArray = tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter((t) => t.length > 0);
-      const now = new Date().toISOString();
+    const newPrompt = {
+      id,
+      title,
+      content,
+      model,
+      collection: collection.trim() || "uncategorized",
+      createdAt: now,
+      updatedAt: now,
+    };
 
-      const newPrompt = {
-        id,
-        title,
-        content,
-        model,
-        collection: collection.trim() || "uncategorized",
-        tags: tagArray.length > 0 ? tagArray : undefined,
-        createdAt: now,
-        updatedAt: now,
-      };
+    // Add to UI immediately, navigate now
+    addOptimistic(newPrompt);
+    router.push("/");
 
-      await savePrompt(newPrompt);
-      router.push("/");
-    } catch (err) {
-      setError("Failed to save prompt. Please try again.");
-      console.error("Error saving prompt:", err);
-    } finally {
-      setSaving(false);
-    }
+    // Persist in background, then sync
+    savePrompt(newPrompt)
+      .then(() => refresh())
+      .catch((err) => {
+        console.error("Error saving prompt:", err);
+        refresh(); // re-sync to remove optimistic entry on failure
+      });
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6">
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
-          {error}
-        </div>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
             Title
           </label>
           <input
@@ -74,71 +62,62 @@ export function PromptForm() {
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+            placeholder="Give your prompt a name"
+            className="w-full px-4 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-            Prompt body
+          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+            Prompt
           </label>
           <textarea
             required
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            rows={8}
+            rows={10}
             placeholder="Enter your prompt here..."
-            className="w-full px-4 py-2 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 font-mono text-sm focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors resize-y"
+            className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow resize-y"
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Collection (tag)
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+              Collection
             </label>
             <input
               type="text"
-              required
               value={collection}
               onChange={(e) => setCollection(e.target.value)}
-              placeholder="e.g. development"
-              className="w-full px-4 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+              placeholder="e.g. coding"
+              className="w-full px-4 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
               Model
             </label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value as PromptModel)}
-              className="w-full px-4 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+              className="w-full px-4 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow"
             >
+              <option value="gpt-4o">GPT-4o</option>
+              <option value="gpt-4o-mini">GPT-4o Mini</option>
               <option value="gpt-4">GPT-4</option>
-              <option value="gpt-3.5">GPT-3.5</option>
+              <option value="claude-3.5">Claude 3.5</option>
               <option value="claude-3">Claude 3</option>
+              <option value="gemini-2">Gemini 2</option>
               <option value="gemini-pro">Gemini Pro</option>
               <option value="mistral">Mistral</option>
+              <option value="other">Other</option>
             </select>
           </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-            Additional tags
-          </label>
-          <input
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="tag1, tag2, tag3"
-            className="w-full px-4 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
-          />
-        </div>
         <button
           type="submit"
-          disabled={saving}
-          className="w-full px-4 py-3 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white font-medium rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors"
         >
-          {saving ? "Saving..." : "Save prompt"}
+          Save prompt
         </button>
       </form>
     </div>

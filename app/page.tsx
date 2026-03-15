@@ -11,9 +11,11 @@ import { PromptCollection } from "@/components/PromptCollection";
 import { UseCasesShowcase } from "@/components/UseCasesShowcase";
 import { PoweredByCarousel } from "@/components/PoweredByCarousel";
 import { usePrompts } from "@/lib/hooks/usePrompts";
+import { useAuth } from "@/components/AuthProvider";
 
 function HomeContent() {
   const { prompts: allPrompts, loading, error } = usePrompts();
+  const { loading: authLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<{
     query: string;
@@ -71,6 +73,17 @@ function HomeContent() {
             <p className="text-sm mt-1">{error}</p>
           </div>
         </div>
+      ) : (authLoading || loading) ? (
+        <div className="max-w-5xl mx-auto w-full animate-pulse space-y-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i}>
+              <div className="h-3 bg-neutral-200 dark:bg-neutral-800 rounded w-20 mb-2 mx-3" />
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="h-10 bg-neutral-100 dark:bg-neutral-900 rounded-md mb-1 mx-1" />
+              ))}
+            </div>
+          ))}
+        </div>
       ) : allPrompts.length === 0 ? (
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
@@ -100,7 +113,7 @@ function HomeContent() {
                 </p>
               </div>
             ) : (
-              <div>
+              <div className="border border-neutral-100 dark:border-neutral-800 rounded-lg overflow-hidden">
                 {collections.map((collection) => (
                   <PromptCollection
                     key={collection}

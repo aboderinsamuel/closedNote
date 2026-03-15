@@ -1,27 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
+// Static sparkles - no JS state or effects, generated once at module load.
+const SPARKLES = Array.from({ length: 30 }, (_, i) => ({
+  id: i,
+  x: ((i * 7.3 + 13) % 100).toFixed(2),
+  y: ((i * 11.7 + 7) % 100).toFixed(2),
+  delay: ((i * 0.1) % 3).toFixed(2),
+}))
 
 export function SparkleBackground() {
-  const [sparkles, setSparkles] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([])
-
-  useEffect(() => {
-    const generateSparkles = () => {
-      const newSparkles = Array.from({ length: 30 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        delay: Math.random() * 3,
-      }))
-      setSparkles(newSparkles)
-    }
-
-    generateSparkles()
-  }, [])
-
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden dark:block hidden">
-      {sparkles.map((sparkle) => (
+      {SPARKLES.map((sparkle) => (
         <div
           key={sparkle.id}
           className="sparkle"
@@ -35,4 +25,3 @@ export function SparkleBackground() {
     </div>
   )
 }
-

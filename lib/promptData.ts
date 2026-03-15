@@ -1,51 +1,27 @@
 import { Prompt, PromptModel } from "./types";
 import { supabase } from "./supabase";
 
-// Fetch all prompts for the current user
 export async function getAllPrompts(): Promise<Prompt[]> {
   try {
-    const { data: prompts, error: promptsError } = await supabase
+    const { data: prompts, error } = await supabase
       .from("prompts")
-      .select("*")
+      .select("*, tags(*)")
       .order("created_at", { ascending: false });
 
-    if (promptsError) {
-      console.error("[promptData] Failed to fetch prompts:", promptsError);
+    if (error) {
+      console.error("[promptData] Failed to fetch prompts:", error);
       return [];
     }
 
     if (!prompts || prompts.length === 0) return [];
 
-    // Fetch tags for all prompts
-    const promptIds = prompts.map((p) => p.id);
-    const { data: tags, error: tagsError } = await supabase
-      .from("tags")
-      .select("*")
-      .in("prompt_id", promptIds);
-
-    if (tagsError) {
-      console.warn("[promptData] Failed to fetch tags:", tagsError);
-    }
-
-    // Group tags by prompt_id
-    const tagsByPromptId: Record<string, string[]> = {};
-    if (tags) {
-      tags.forEach((tag) => {
-        if (!tagsByPromptId[tag.prompt_id]) {
-          tagsByPromptId[tag.prompt_id] = [];
-        }
-        tagsByPromptId[tag.prompt_id].push(tag.tag);
-      });
-    }
-
-    // Map database rows to Prompt type
     return prompts.map((p) => ({
       id: p.id,
       title: p.title,
       content: p.content,
       model: p.model as PromptModel,
       collection: p.collection,
-      tags: tagsByPromptId[p.id] || [],
+      tags: p.tags ? (p.tags as { tag: string }[]).map((t) => t.tag) : [],
       createdAt: p.created_at,
       updatedAt: p.updated_at,
     }));
@@ -55,7 +31,6 @@ export async function getAllPrompts(): Promise<Prompt[]> {
   }
 }
 
-// Fetch a single prompt by ID
 export async function getPromptById(id: string): Promise<Prompt | undefined> {
   try {
     const { data: prompt, error: promptError } = await supabase
@@ -69,7 +44,6 @@ export async function getPromptById(id: string): Promise<Prompt | undefined> {
       return undefined;
     }
 
-    // Fetch tags for this prompt
     const { data: tags, error: tagsError } = await supabase
       .from("tags")
       .select("*")
@@ -95,63 +69,28 @@ export async function getPromptById(id: string): Promise<Prompt | undefined> {
   }
 }
 
-// Save a prompt (create or update)
 export async function savePrompt(prompt: Prompt): Promise<void> {
   try {
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (!user) {
+    if (!session?.user) {
       throw new Error("User not authenticated");
     }
 
-    // Check if prompt exists
-    const { data: existing, error: checkError } = await supabase
-      .from("prompts")
-      .select("id")
-      .eq("id", prompt.id)
-      .maybeSingle();
+    const { error: upsertError } = await supabase.from("prompts").upsert({
+      id: prompt.id,
+      user_id: session.user.id,
+      title: prompt.title,
+      content: prompt.content,
+      model: prompt.model,
+      collection: prompt.collection,
+      created_at: prompt.createdAt,
+      updated_at: new Date().toISOString(),
+    });
 
-    // Ignore PGRST116 error (no rows returned) - it just means the prompt doesn't exist yet
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error("[promptData] Error checking prompt existence:", checkError);
-      throw checkError;
-    }
-
-    if (existing) {
-      // Update existing prompt
-      const { error: updateError } = await supabase
-        .from("prompts")
-        .update({
-          title: prompt.title,
-          content: prompt.content,
-          model: prompt.model,
-          collection: prompt.collection,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", prompt.id);
-
-      if (updateError) {
-        throw updateError;
-      }
-    } else {
-      // Insert new prompt
-      const { error: insertError } = await supabase.from("prompts").insert({
-        id: prompt.id,
-        user_id: user.id,
-        title: prompt.title,
-        content: prompt.content,
-        model: prompt.model,
-        collection: prompt.collection,
-        created_at: prompt.createdAt,
-        updated_at: prompt.updatedAt,
-      });
-
-      if (insertError) {
-        throw insertError;
-      }
-    }
+    if (upsertError) throw upsertError;
 
     // Handle tags: delete old ones and insert new ones
     const { error: deleteTagsError } = await supabase
@@ -183,22 +122,16 @@ export async function savePrompt(prompt: Prompt): Promise<void> {
   }
 }
 
-// Delete a prompt by ID
 export async function deletePrompt(id: string): Promise<void> {
   try {
-    // Tags will be automatically deleted by cascade
     const { error } = await supabase.from("prompts").delete().eq("id", id);
-
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
   } catch (err) {
     console.error("[promptData] Error deleting prompt:", err);
     throw err;
   }
 }
 
-// Filter prompts based on search criteria
 export function filterPrompts(
   prompts: Prompt[],
   filters: {
@@ -229,7 +162,6 @@ export function filterPrompts(
   });
 }
 
-// Group prompts by collection
 export function groupPromptsByCollection(
   prompts: Prompt[]
 ): Record<string, Prompt[]> {
@@ -246,21 +178,18 @@ export function groupPromptsByCollection(
   );
 }
 
-// Group prompts by tag
 export function groupPromptsByTag(
   prompts: Prompt[]
 ): Record<string, Prompt[]> {
   const groups: Record<string, Prompt[]> = {};
   for (const p of prompts) {
     const tags = [p.collection || "uncategorized", ...(p.tags || [])];
-    // Use Set to deduplicate tags for this prompt
     const uniqueTags = Array.from(new Set(tags));
     for (const t of uniqueTags) {
       if (!groups[t]) groups[t] = [];
       groups[t].push(p);
     }
   }
-  // Sort prompts within each tag by title
   for (const key of Object.keys(groups)) {
     groups[key].sort((a, b) => a.title.localeCompare(b.title));
   }

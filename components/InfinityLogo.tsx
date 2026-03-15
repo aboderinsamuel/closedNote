@@ -7,7 +7,8 @@ export function InfinityLogo() {
           height="48"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#000000"
+          stroke="currentColor"
+          className="text-neutral-900 dark:text-neutral-100"
           strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"

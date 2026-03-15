@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply font-sans bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100;
+    @apply font-sans bg-[#141414] text-neutral-900 dark:text-neutral-100;
   }
   
   .font-serif-title {
