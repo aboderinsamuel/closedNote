@@ -84,12 +84,79 @@ export interface Database {
           created_at?: string
         }
       }
+      prompt_chains: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      chain_steps: {
+        Row: {
+          id: string
+          chain_id: string
+          prompt_id: string | null
+          step_order: number
+          title: string
+          content: string
+          output_variable: string | null
+          input_mapping: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          chain_id: string
+          prompt_id?: string | null
+          step_order: number
+          title?: string
+          content?: string
+          output_variable?: string | null
+          input_mapping?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          chain_id?: string
+          prompt_id?: string | null
+          step_order?: number
+          title?: string
+          content?: string
+          output_variable?: string | null
+          input_mapping?: Json
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_user: {
+        Args: Record<string, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
