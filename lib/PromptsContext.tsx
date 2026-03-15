@@ -11,6 +11,8 @@ interface PromptsContextValue {
   error: string | null;
   refresh: () => Promise<void>;
   addOptimistic: (prompt: Prompt) => void;
+  updateOptimistic: (prompt: Prompt) => void;
+  removeOptimistic: (id: string) => void;
 }
 
 const PromptsContext = createContext<PromptsContextValue>({
@@ -57,8 +59,16 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
     setPrompts((prev) => [prompt, ...prev]);
   };
 
+  const updateOptimistic = (prompt: Prompt) => {
+    setPrompts((prev) => prev.map((p) => (p.id === prompt.id ? prompt : p)));
+  };
+
+  const removeOptimistic = (id: string) => {
+    setPrompts((prev) => prev.filter((p) => p.id !== id));
+  };
+
   return (
-    <PromptsContext.Provider value={{ prompts, loading, error, refresh: loadPrompts, addOptimistic }}>
+    <PromptsContext.Provider value={{ prompts, loading, error, refresh: loadPrompts, addOptimistic, updateOptimistic, removeOptimistic }}>
       {children}
     </PromptsContext.Provider>
   );

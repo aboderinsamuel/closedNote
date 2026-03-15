@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Prompt } from "@/lib/types";
 import { deletePrompt, savePrompt } from "@/lib/promptData";
 import { useRouter } from "next/navigation";
+import { usePrompts } from "@/lib/hooks/usePrompts";
 
 interface PromptDetailProps {
   prompt: Prompt;
@@ -13,12 +14,13 @@ interface PromptDetailProps {
 export function PromptDetail({ prompt }: PromptDetailProps) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [localPrompt, setLocalPrompt] = useState(prompt);
   const [title, setTitle] = useState(prompt.title);
   const [content, setContent] = useState(prompt.content);
-  const [tags, setTags] = useState((prompt.tags || []).join(", "));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { removeOptimistic, updateOptimistic } = usePrompts();
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(prompt.content);
@@ -30,6 +32,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     if (!confirm("Delete this prompt? This cannot be undone.")) return;
 
     try {
+      removeOptimistic(prompt.id);
       await deletePrompt(prompt.id);
       router.push("/");
     } catch (err) {
@@ -48,16 +51,13 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         ...prompt,
         title: title.trim() || prompt.title,
         content: content.trim() || prompt.content,
-        tags: tags
-          .split(",")
-          .map((t) => t.trim())
-          .filter((t) => t.length > 0),
         updatedAt: now,
       };
 
       await savePrompt(updated);
+      setLocalPrompt(updated);
+      updateOptimistic(updated);
       setEditing(false);
-      router.refresh();
     } catch (err) {
       setError("Failed to save changes. Please try again.");
       console.error("Error saving prompt:", err);
@@ -88,28 +88,16 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
           />
         ) : (
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
-            {prompt.title}
+            {localPrompt.title}
           </h1>
         )}
         <div className="flex flex-wrap gap-3 mb-6">
           <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm font-medium">
-            {prompt.collection}
+            {localPrompt.collection}
           </span>
           <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm">
-            {prompt.model}
+            {localPrompt.model}
           </span>
-          {prompt.tags && prompt.tags.length > 0 && (
-            <>
-              {prompt.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md text-sm"
-                >
-                  {tag}
-                </span>
-              ))}
-            </>
-          )}
         </div>
 
         <div className="relative">
@@ -133,7 +121,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
             />
           ) : (
             <pre className="p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto text-sm font-mono text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap">
-              <code>{prompt.content}</code>
+              <code>{localPrompt.content}</code>
             </pre>
           )}
         </div>
@@ -141,12 +129,6 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         <div className="flex flex-wrap gap-3 pt-4">
           {editing ? (
             <>
-              <input
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="tag1, tag2"
-                className="flex-1 min-w-[200px] px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm"
-              />
               <button
                 onClick={handleSave}
                 disabled={saving}
