@@ -15,15 +15,29 @@ import { PromptForm } from "@/components/PromptForm";
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
-const mockPush = jest.fn();
-jest.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush }),
-}));
+// jest.mock() is hoisted before variable declarations, so factories must only
+// use jest.fn() inline — no outer variables. We then import the mocked hooks
+// and call mockReturnValue() to inject our named jest.fn() references.
+jest.mock("next/navigation", () => ({ useRouter: jest.fn() }));
+jest.mock("@/lib/hooks/usePrompts", () => ({ usePrompts: jest.fn() }));
+jest.mock("@/lib/promptData", () => ({ savePrompt: jest.fn(() => Promise.resolve()) }));
+jest.mock("@/components/AuthProvider", () => ({ useAuth: jest.fn() }));
 
+import { useRouter } from "next/navigation";
+import { usePrompts } from "@/lib/hooks/usePrompts";
+import { savePrompt } from "@/lib/promptData";
+import { useAuth } from "@/components/AuthProvider";
+
+const mockPush = jest.fn();
 const mockAddOptimistic = jest.fn();
 const mockRefresh = jest.fn(() => Promise.resolve());
-jest.mock("@/lib/hooks/usePrompts", () => ({
-  usePrompts: () => ({
+const mockSavePrompt = savePrompt as jest.Mock;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function renderWithAuth(user: object | null = { id: "user-1", email: "test@example.com" }) {
+  (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+  (usePrompts as jest.Mock).mockReturnValue({
     addOptimistic: mockAddOptimistic,
     refresh: mockRefresh,
     prompts: [],
@@ -31,23 +45,7 @@ jest.mock("@/lib/hooks/usePrompts", () => ({
     error: null,
     updateOptimistic: jest.fn(),
     removeOptimistic: jest.fn(),
-  }),
-}));
-
-const mockSavePrompt = jest.fn(() => Promise.resolve());
-jest.mock("@/lib/promptData", () => ({
-  savePrompt: mockSavePrompt,
-}));
-
-jest.mock("@/components/AuthProvider", () => ({
-  useAuth: jest.fn(),
-}));
-
-import { useAuth } from "@/components/AuthProvider";
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function renderWithAuth(user: object | null = { id: "user-1", email: "test@example.com" }) {
+  });
   (useAuth as jest.Mock).mockReturnValue({ user });
   return render(<PromptForm />);
 }
