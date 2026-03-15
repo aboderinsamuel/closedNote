@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { useState, useMemo, useEffect } from "react";
 import { groupPromptsByCollection, filterPrompts } from "@/lib/promptData";
-import { Prompt, PromptModel } from "@/lib/types";
+import { PromptModel } from "@/lib/types";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Layout } from "@/components/Layout";
@@ -24,15 +24,12 @@ function HomeContent() {
   const [activeCollection, setActiveCollection] = useState<
     string | undefined
   >();
-  const [activeTag, setActiveTag] = useState<string | undefined>();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const collection = urlParams.get("collection");
       if (collection) setActiveCollection(collection);
-      const tag = urlParams.get("tag");
-      if (tag) setActiveTag(tag);
     }
   }, []);
 
@@ -45,9 +42,8 @@ function HomeContent() {
       query: filters.query || undefined,
       model: filters.model || undefined,
       collection: activeCollection,
-      tag: activeTag,
     });
-  }, [filters, allPrompts, activeCollection, activeTag]);
+  }, [filters, allPrompts, activeCollection]);
 
   const promptsByCollection = useMemo(() => {
     return groupPromptsByCollection(filteredPrompts);
@@ -62,7 +58,7 @@ function HomeContent() {
       }
       sidebar={
         allPrompts.length > 0 ? (
-          <Sidebar prompts={allPrompts} activeTag={activeTag} />
+          <Sidebar prompts={allPrompts} activeCollection={activeCollection} />
         ) : null
       }
     >

@@ -11,7 +11,7 @@ interface ResultItem {
   title: string;
   subtitle?: string;
   href: string;
-  type: "page" | "prompt" | "tag";
+  type: "page" | "prompt";
 }
 
 function normalize(s: string) {
@@ -64,38 +64,24 @@ export function SearchPalette() {
     []
   );
 
-  const tagItems: ResultItem[] = useMemo(() => {
-    const tagSet = new Set<string>();
-    prompts.forEach((p) => (p.tags || []).forEach((t) => tagSet.add(t)));
-    return Array.from(tagSet)
-      .sort()
-      .map((t) => ({
-        id: `tag:${t}`,
-        title: `Tag: ${t}`,
-        subtitle: "Filter prompts by tag",
-        href: `/?tag=${encodeURIComponent(t)}`,
-        type: "tag" as const,
-      }));
-  }, [prompts]);
-
   const promptItems: ResultItem[] = useMemo(() => {
     if (!user) return [];
     return prompts.map((p: Prompt) => ({
       id: p.id,
       title: p.title,
-      subtitle: p.tags && p.tags.length ? p.tags.join(", ") : undefined,
+      subtitle: p.collection,
       href: `/prompts/${p.id}`,
       type: "prompt" as const,
     }));
   }, [prompts, user]);
 
   const allItems: ResultItem[] = useMemo(() => {
-    if (!query.trim()) return [...pages, ...tagItems, ...promptItems];
+    if (!query.trim()) return [...pages, ...promptItems];
     const q = normalize(query);
-    return [...pages, ...tagItems, ...promptItems].filter((i) =>
+    return [...pages, ...promptItems].filter((i) =>
       normalize(i.title + " " + (i.subtitle || "")).includes(q)
     );
-  }, [pages, tagItems, promptItems, query]);
+  }, [pages, promptItems, query]);
 
   const onSelect = (item: ResultItem) => {
     setOpen(false);
@@ -134,7 +120,7 @@ export function SearchPalette() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
-                placeholder="Search pages, tags, or prompts"
+                placeholder="Search pages or prompts"
                 className="w-full pl-10 pr-4 py-2 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
               />
               <svg
@@ -173,8 +159,6 @@ export function SearchPalette() {
                         className={`text-xs px-2 py-1 rounded-full border ${
                           item.type === "page"
                             ? "border-blue-300 text-blue-600 dark:border-blue-800 dark:text-blue-300"
-                            : item.type === "tag"
-                            ? "border-amber-300 text-amber-600 dark:border-amber-800 dark:text-amber-300"
                             : "border-neutral-300 text-neutral-600 dark:border-neutral-700 dark:text-neutral-300"
                         }`}
                       >

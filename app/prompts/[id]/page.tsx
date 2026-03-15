@@ -37,7 +37,7 @@ export default function PromptPage({ params }: { params: { id: string } }) {
   return (
     <Layout
       header={<Header promptCount={allPrompts.length} />}
-      sidebar={<Sidebar prompts={allPrompts} activeTag={prompt.collection} />}
+      sidebar={<Sidebar prompts={allPrompts} activeCollection={prompt.collection} />}
     >
       <div className="max-w-2xl mx-auto">
         <PromptDetail prompt={prompt} />

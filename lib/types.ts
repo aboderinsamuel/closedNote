@@ -6,7 +6,6 @@ export interface Prompt {
   content: string
   model: PromptModel
   collection: string
-  tags?: string[]
   createdAt: string
   updatedAt: string
 }

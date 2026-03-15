@@ -5,7 +5,7 @@ export async function getAllPrompts(): Promise<Prompt[]> {
   try {
     const { data: prompts, error } = await supabase
       .from("prompts")
-      .select("*, tags(*)")
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -21,7 +21,6 @@ export async function getAllPrompts(): Promise<Prompt[]> {
       content: p.content,
       model: p.model as PromptModel,
       collection: p.collection,
-      tags: p.tags ? (p.tags as unknown as { tag: string }[]).map((t) => t.tag) : [],
       createdAt: p.created_at,
       updatedAt: p.updated_at,
     }));
@@ -44,22 +43,12 @@ export async function getPromptById(id: string): Promise<Prompt | undefined> {
       return undefined;
     }
 
-    const { data: tags, error: tagsError } = await supabase
-      .from("tags")
-      .select("*")
-      .eq("prompt_id", id);
-
-    if (tagsError) {
-      console.warn("[promptData] Failed to fetch tags:", tagsError);
-    }
-
     return {
       id: prompt.id,
       title: prompt.title,
       content: prompt.content,
       model: prompt.model as PromptModel,
       collection: prompt.collection,
-      tags: tags ? tags.map((t) => t.tag) : [],
       createdAt: prompt.created_at,
       updatedAt: prompt.updated_at,
     };
@@ -91,31 +80,6 @@ export async function savePrompt(prompt: Prompt): Promise<void> {
     });
 
     if (upsertError) throw upsertError;
-
-    // Handle tags: delete old ones and insert new ones
-    const { error: deleteTagsError } = await supabase
-      .from("tags")
-      .delete()
-      .eq("prompt_id", prompt.id);
-
-    if (deleteTagsError) {
-      console.warn("[promptData] Failed to delete old tags:", deleteTagsError);
-    }
-
-    if (prompt.tags && prompt.tags.length > 0) {
-      const tagInserts = prompt.tags.map((tag) => ({
-        prompt_id: prompt.id,
-        tag,
-      }));
-
-      const { error: insertTagsError } = await supabase
-        .from("tags")
-        .insert(tagInserts);
-
-      if (insertTagsError) {
-        console.warn("[promptData] Failed to insert tags:", insertTagsError);
-      }
-    }
   } catch (err) {
     console.error("[promptData] Error saving prompt:", err);
     throw err;
@@ -138,7 +102,6 @@ export function filterPrompts(
     query?: string;
     model?: PromptModel;
     collection?: string;
-    tag?: string;
   }
 ): Prompt[] {
   return prompts.filter((prompt) => {
@@ -152,12 +115,6 @@ export function filterPrompts(
     if (filters.model && prompt.model !== filters.model) return false;
     if (filters.collection && prompt.collection !== filters.collection)
       return false;
-    if (filters.tag) {
-      const tag = filters.tag;
-      const inPrimary = prompt.collection === tag;
-      const inExtra = (prompt.tags || []).includes(tag);
-      if (!inPrimary && !inExtra) return false;
-    }
     return true;
   });
 }
@@ -178,20 +135,3 @@ export function groupPromptsByCollection(
   );
 }
 
-export function groupPromptsByTag(
-  prompts: Prompt[]
-): Record<string, Prompt[]> {
-  const groups: Record<string, Prompt[]> = {};
-  for (const p of prompts) {
-    const tags = [p.collection || "uncategorized", ...(p.tags || [])];
-    const uniqueTags = Array.from(new Set(tags));
-    for (const t of uniqueTags) {
-      if (!groups[t]) groups[t] = [];
-      groups[t].push(p);
-    }
-  }
-  for (const key of Object.keys(groups)) {
-    groups[key].sort((a, b) => a.title.localeCompare(b.title));
-  }
-  return groups;
-}
