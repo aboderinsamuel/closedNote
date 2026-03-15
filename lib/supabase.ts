@@ -25,15 +25,13 @@ if (supabaseUrl && !supabaseUrl.startsWith('http')) {
 const finalUrl = (supabaseUrl && supabaseUrl.startsWith('http')) ? supabaseUrl : DEFAULT_SUPABASE_URL;
 const finalKey = supabaseAnonKey || DEFAULT_SUPABASE_KEY;
 
-// Create client with session persistence disabled for incognito-like behavior
-// This prevents caching issues while maintaining auth functionality
 export const supabase = createClient<Database>(
   finalUrl,
   finalKey,
   {
     auth: {
-      persistSession: true, // Keep sessions but only in sessionStorage (clears on browser close)
-      storage: typeof window !== 'undefined' ? window.sessionStorage : undefined, // Use sessionStorage instead of localStorage
+      persistSession: true,
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       storageKey: 'closednote-auth',
       autoRefreshToken: true,
       detectSessionInUrl: true,

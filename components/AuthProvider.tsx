@@ -32,7 +32,7 @@ const USER_CACHE_KEY = "closednote_user_cache";
 
 function readUserCache(): User | null {
   try {
-    const raw = sessionStorage.getItem(USER_CACHE_KEY);
+    const raw = localStorage.getItem(USER_CACHE_KEY);
     return raw ? (JSON.parse(raw) as User) : null;
   } catch {
     return null;
@@ -42,9 +42,9 @@ function readUserCache(): User | null {
 function writeUserCache(user: User | null) {
   try {
     if (user) {
-      sessionStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
+      localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
     } else {
-      sessionStorage.removeItem(USER_CACHE_KEY);
+      localStorage.removeItem(USER_CACHE_KEY);
     }
   } catch {}
 }
@@ -73,10 +73,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
     }
 
-    // Then validate with Supabase in background
+    // Then validate with Supabase in background (with timeout to prevent stuck loading)
     const initializeAuth = async () => {
       try {
-        const currentUser = await getCurrentUser();
+        const timeoutPromise = new Promise<null>((resolve) =>
+          setTimeout(() => resolve(null), 8000)
+        );
+        const currentUser = await Promise.race([getCurrentUser(), timeoutPromise]);
         if (mounted) setUserAndCache(currentUser);
       } catch {
         if (mounted) setUserAndCache(null);
