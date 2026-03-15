@@ -9,7 +9,6 @@ import {
   authenticateUser,
   onAuthStateChange,
 } from "@/lib/auth";
-import { logSupabaseHealth } from "@/lib/supabase-health-check";
 
 interface AuthContextValue {
   user: User | null;
@@ -29,50 +28,67 @@ interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
+const USER_CACHE_KEY = "closednote_user_cache";
+
+function readUserCache(): User | null {
+  try {
+    const raw = sessionStorage.getItem(USER_CACHE_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeUserCache(user: User | null) {
+  try {
+    if (user) {
+      sessionStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
+    } else {
+      sessionStorage.removeItem(USER_CACHE_KEY);
+    }
+  } catch {}
+}
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // Always start null - this matches the server render and prevents hydration mismatch
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Run health check in development
-    if (process.env.NODE_ENV === "development") {
-      logSupabaseHealth().catch(console.error);
-    }
+  const setUserAndCache = (u: User | null) => {
+    writeUserCache(u);
+    setUser(u);
+  };
 
+  useEffect(() => {
     let mounted = true;
 
-    // Simple initialization - no session persistence to manage
+    // Fast path: restore from sessionStorage immediately (no network, no flash)
+    const cached = readUserCache();
+    if (cached) {
+      setUser(cached);
+      setLoading(false);
+    }
+
+    // Then validate with Supabase in background
     const initializeAuth = async () => {
       try {
         const currentUser = await getCurrentUser();
-        if (mounted) {
-          console.log("[AuthProvider] Initial user:", currentUser);
-          setUser(currentUser);
-        }
-      } catch (error) {
-        console.error("[AuthProvider] Error initializing auth:", error);
-        if (mounted) {
-          setUser(null);
-        }
+        if (mounted) setUserAndCache(currentUser);
+      } catch {
+        if (mounted) setUserAndCache(null);
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
     initializeAuth();
 
-    // Listen to auth state changes
     const unsubscribe = onAuthStateChange((updatedUser) => {
-      if (mounted) {
-        console.log("[AuthProvider] Auth state changed:", updatedUser);
-        setUser(updatedUser);
-      }
+      if (mounted) setUserAndCache(updatedUser);
     });
 
     return () => {
@@ -82,13 +98,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log("[AuthProvider] Attempting login for:", email);
     const res = await authenticateUser(email, password);
-    console.log("[AuthProvider] Login result:", res);
     if (res.ok) {
       const currentUser = await getCurrentUser();
-      console.log("[AuthProvider] User after login:", currentUser);
-      setUser(currentUser);
+      setUserAndCache(currentUser);
     }
     return res;
   };
@@ -101,35 +114,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const res = await registerUser(email, password, displayName);
     if (res.ok && !res.needsEmailConfirmation) {
       const currentUser = await getCurrentUser();
-      setUser(currentUser);
+      setUserAndCache(currentUser);
     }
     return res;
   };
 
   const logout = async () => {
-    console.log("[AuthProvider] Logout requested");
-
+    setUserAndCache(null);
     try {
-      // Clear user state immediately for instant UI feedback
-      setUser(null);
-      
-      // Sign out from Supabase (simple, no cache to manage)
       await logoutUser();
-
-      console.log("[AuthProvider] Logout complete, redirecting...");
-
-      // Redirect to login page
-      if (typeof window !== 'undefined') {
-        window.location.href = "/login";
-      }
-    } catch (err) {
-      console.error("[AuthProvider] Logout failed:", err);
-      // Still clear state and redirect even if there's an error
-      setUser(null);
-      if (typeof window !== 'undefined') {
-        window.location.href = "/login";
-      }
-    }
+    } catch {}
+    if (typeof window !== "undefined") window.location.href = "/login";
   };
 
   return (

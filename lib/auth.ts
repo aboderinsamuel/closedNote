@@ -130,14 +130,25 @@ export async function getCurrentUser(): Promise<User | null> {
       .single();
 
     if (error || !profile) {
-      console.warn("[auth] Failed to fetch user profile:", error);
-      return null;
+      // Profile row missing - build user from auth metadata so login still works
+      console.warn("[auth] User profile not found, using auth metadata fallback");
+      return {
+        id: authUser.id,
+        email: authUser.email || "",
+        passwordHash: "",
+        displayName:
+          (authUser.user_metadata?.display_name as string | undefined) ||
+          authUser.email?.split("@")[0] ||
+          "User",
+        createdAt: authUser.created_at,
+        updatedAt: authUser.updated_at || authUser.created_at,
+      };
     }
 
     return {
       id: profile.id,
       email: profile.email,
-      passwordHash: "", // Not needed with Supabase
+      passwordHash: "",
       displayName: profile.display_name,
       createdAt: profile.created_at,
       updatedAt: profile.updated_at,
