@@ -2,7 +2,7 @@
 
 > *"Because even ChatGPT forgets sometimes..."*
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/aboderinsamuel/closedNote)
+### 👉 [closednote.vercel.app](https://closednote.vercel.app) — try it live
 
 ---
 
