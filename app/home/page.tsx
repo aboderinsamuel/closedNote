@@ -66,7 +66,7 @@ export default function MarketingHome() {
                   href="/chains/new"
                   className="px-6 py-3 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-medium rounded-full transition-colors"
                 >
-                  Create a Chain
+                  Create a Thread
                 </Link>
               </>
             ) : (
