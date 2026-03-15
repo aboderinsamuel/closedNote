@@ -123,6 +123,18 @@ Every user's data is tied to their `auth.uid()`. No mix-ups, no leaks. Row Level
 
 ---
 
+## 🧪 Tests
+
+![Test Results](./screenshots/test.png)
+
+25 tests passing across auth logic and UI components, run with Jest.
+
+```bash
+npm test
+```
+
+---
+
 ## 🧪 Run Locally
 
 ```bash
