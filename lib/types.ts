@@ -40,3 +40,12 @@ export interface ChainStep {
   inputMapping?: Record<string, string>
   createdAt: string
 }
+
+export interface PromptVersion {
+  id: string
+  promptId: string
+  title: string
+  content: string
+  versionNumber: number
+  createdAt: string
+}

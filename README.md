@@ -118,7 +118,7 @@ AI features are optional — users add their own OpenAI or HuggingFace key in Se
 
 ## 🛣️ Open Issues & Roadmap
 
-See the [open issues](https://github.com/aboderinsamuel/closedNote_v0.01/issues) for what's being worked on.
+See the [open issues](https://github.com/aboderinsamuel/closedNote/issues) for what's being worked on.
 
 Got ideas? Dark mode themes, AI tag suggestions, team sharing, prompt history — contributions welcome!
 

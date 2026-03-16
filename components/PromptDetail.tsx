@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Prompt } from "@/lib/types";
+import { Prompt, PromptVersion } from "@/lib/types";
 import { deletePrompt, savePrompt } from "@/lib/promptData";
 import { useRouter } from "next/navigation";
 import { usePrompts } from "@/lib/hooks/usePrompts";
+import { VersionHistory } from "@/components/VersionHistory";
 
 interface PromptDetailProps {
   prompt: Prompt;
@@ -19,6 +20,8 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const [content, setContent] = useState(prompt.content);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
   const router = useRouter();
   const { removeOptimistic, updateOptimistic } = usePrompts();
 
@@ -58,9 +61,33 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       setLocalPrompt(updated);
       updateOptimistic(updated);
       setEditing(false);
+      setHistoryKey((k) => k + 1);
     } catch (err) {
       setError("Failed to save changes. Please try again.");
       console.error("Error saving prompt:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRestore = async (version: PromptVersion) => {
+    if (!confirm(`Restore v${version.versionNumber}? This will save it as a new version.`)) return;
+    const restored = {
+      ...localPrompt,
+      title: version.title,
+      content: version.content,
+    };
+    setTitle(restored.title);
+    setContent(restored.content);
+    setSaving(true);
+    try {
+      await savePrompt({ ...restored, updatedAt: new Date().toISOString() });
+      setLocalPrompt(restored);
+      updateOptimistic(restored);
+      setHistoryKey((k) => k + 1);
+    } catch (err) {
+      setError("Failed to restore version.");
+      console.error(err);
     } finally {
       setSaving(false);
     }
@@ -152,6 +179,12 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                 Edit
               </button>
               <button
+                onClick={() => setShowHistory((v) => !v)}
+                className="w-full sm:w-auto px-4 py-2 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md"
+              >
+                {showHistory ? "Hide History" : "Version History"}
+              </button>
+              <button
                 onClick={handleDelete}
                 className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-md"
               >
@@ -161,6 +194,21 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
           )}
         </div>
       </div>
+
+      {showHistory && (
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6">
+          <h2 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-4">
+            Version History
+          </h2>
+          <VersionHistory
+            key={historyKey}
+            promptId={localPrompt.id}
+            currentContent={localPrompt.content}
+            currentTitle={localPrompt.title}
+            onRestore={handleRestore}
+          />
+        </div>
+      )}
     </div>
   );
 }

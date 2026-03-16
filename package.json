@@ -13,6 +13,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.80.0",
     "@vercel/analytics": "^1.5.0",
+    "diff-match-patch": "^1.0.5",
     "next": "^14.2.0",
     "openai": "^6.27.0",
     "react": "^18.3.1",
@@ -23,6 +24,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/diff-match-patch": "^1.0.36",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.0",
