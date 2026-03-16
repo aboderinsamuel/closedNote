@@ -49,7 +49,7 @@ export function Header({ promptCount, showMobileMenu = true }: HeaderProps) {
               </svg>
             </button>
           )}
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
+          <Link href="/home" className="flex items-center gap-2 sm:gap-3 group">
             <span className="font-serif-title text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100 group-hover:opacity-80 transition-opacity">
               closedNote
             </span>
@@ -134,7 +134,7 @@ export function Header({ promptCount, showMobileMenu = true }: HeaderProps) {
                       <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">{user.email}</p>
                     </div>
                     <div className="py-1">
-                      <Link href="/dashboard" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                      <Link href="/" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
                         <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">My Prompts</p>

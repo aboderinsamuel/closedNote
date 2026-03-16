@@ -17,7 +17,7 @@ export function Sidebar({ prompts, activeCollection }: SidebarProps) {
     <aside className="w-64 border-r border-neutral-200 dark:border-neutral-800 p-4 sm:p-6">
       <div className="space-y-4 sm:space-y-6">
         <Link
-          href="/dashboard"
+          href="/"
           className={`block font-semibold text-neutral-900 dark:text-neutral-100 hover:opacity-70 transition-opacity mb-3 ${
             !activeCollection ? "underline decoration-yellow-400 underline-offset-4" : ""
           }`}

@@ -73,7 +73,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     try {
       removeOptimistic(prompt.id);
       await deletePrompt(prompt.id);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       setError("Failed to delete prompt. Please try again.");
       console.error("Error deleting prompt:", err);
@@ -127,7 +127,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   return (
     <div className="space-y-6">
       <Link
-        href="/dashboard"
+        href="/"
         className="inline-flex items-center text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
       >
         &larr; Back to prompts
