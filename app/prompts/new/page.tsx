@@ -13,7 +13,7 @@ export default function NewPromptPage() {
     <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
       <div className="max-w-2xl mx-auto">
         <Link
-          href="/dashboard"
+          href="/"
           className="inline-flex items-center text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors mb-8"
         >
           ← Back
