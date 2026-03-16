@@ -58,7 +58,7 @@ export async function getPromptById(id: string): Promise<Prompt | undefined> {
   }
 }
 
-export async function savePrompt(prompt: Prompt): Promise<void> {
+export async function savePrompt(prompt: Prompt, skipVersion = false): Promise<void> {
   try {
     const {
       data: { session },
@@ -81,23 +81,24 @@ export async function savePrompt(prompt: Prompt): Promise<void> {
 
     if (upsertError) throw upsertError;
 
-    // Count existing versions to determine next version number
-    const { count } = await supabase
-      .from("prompt_versions")
-      .select("*", { count: "exact", head: true })
-      .eq("prompt_id", prompt.id);
+    if (!skipVersion) {
+      const { count } = await supabase
+        .from("prompt_versions")
+        .select("*", { count: "exact", head: true })
+        .eq("prompt_id", prompt.id);
 
-    const { error: versionError } = await supabase
-      .from("prompt_versions")
-      .insert({
-        prompt_id: prompt.id,
-        title: prompt.title,
-        content: prompt.content,
-        version_number: (count ?? 0) + 1,
-      });
+      const { error: versionError } = await supabase
+        .from("prompt_versions")
+        .insert({
+          prompt_id: prompt.id,
+          title: prompt.title,
+          content: prompt.content,
+          version_number: (count ?? 0) + 1,
+        });
 
-    if (versionError) {
-      console.error("[promptData] Failed to save version:", versionError);
+      if (versionError) {
+        console.error("[promptData] Failed to save version:", versionError);
+      }
     }
   } catch (err) {
     console.error("[promptData] Error saving prompt:", err);

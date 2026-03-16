@@ -85,17 +85,18 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     setError(null);
     try {
       const now = new Date().toISOString();
-      const updated = {
-        ...prompt,
-        title: title.trim() || localPrompt.title,
-        content: content.trim() || localPrompt.content,
-        updatedAt: now,
-      };
-      await savePrompt(updated);
+      const newTitle = title.trim() || localPrompt.title;
+      const newContent = content.trim() || localPrompt.content;
+      const updated = { ...localPrompt, title: newTitle, content: newContent, updatedAt: now };
+
+      // Only create a version if something actually changed
+      const contentChanged = newTitle !== localPrompt.title || newContent !== localPrompt.content;
+      await savePrompt(updated, !contentChanged);
+
       setLocalPrompt(updated);
       updateOptimistic(updated);
       setEditing(false);
-      setHistoryKey((k) => k + 1);
+      if (contentChanged) setHistoryKey((k) => k + 1);
     } catch (err) {
       setError("Failed to save changes. Please try again.");
       console.error("Error saving prompt:", err);
@@ -105,20 +106,16 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   };
 
   const handleRestore = async (version: PromptVersion) => {
-    if (!confirm(`Restore v${version.versionNumber}? This will save it as a new version.`)) return;
-    const restored = {
-      ...localPrompt,
-      title: version.title,
-      content: version.content,
-    };
+    if (!confirm(`Restore v${version.versionNumber}? Version history will be preserved.`)) return;
+    const restored = { ...localPrompt, title: version.title, content: version.content };
     setTitle(restored.title);
     setContent(restored.content);
     setSaving(true);
     try {
-      await savePrompt({ ...restored, updatedAt: new Date().toISOString() });
+      // skipVersion=true: restore just updates the prompt, no new version created
+      await savePrompt({ ...restored, updatedAt: new Date().toISOString() }, true);
       setLocalPrompt(restored);
       updateOptimistic(restored);
-      setHistoryKey((k) => k + 1);
     } catch (err) {
       setError("Failed to restore version.");
       console.error(err);
