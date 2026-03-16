@@ -11,44 +11,23 @@
 
 ---
 
-## The Problem
+## Explanation
 
-PromptBase stores prompts. Notion organizes them. FlowGPT shares them.
+PromptBase stores prompts. Notion organizes them. FlowGPT shares them. None of them remember how they got there.
 
-**None of them remember how they got there.**
-
-In real life, prompts evolve. You tweak your "code review prompt" three times, and by the fourth iteration you forget what made version 2 actually work. There is no tool aimed at everyday users that tracks *how your prompts change over time* and lets you compare, restore, and iterate on them — until now.
+In real life, prompts evolve. You tweak your "code review prompt" three times, and by the fourth iteration you've forgotten what made version 2 actually work. There is no tool aimed at everyday users that tracks how your prompts change over time — until now.
 
 closedNote is built on one thesis: **a prompt is not a sticky note. It's a document with a history.**
 
----
-
-## Why closedNote
-
-|  | **closedNote** | PromptBase | FlowGPT | Notion |
-|---|:---:|:---:|:---:|:---:|
-| Version history & visual diff | ✅ | ❌ | ❌ | ❌ |
-| Private by default | ✅ | ❌ | ❌ | ✅ |
-| AI prompt refinement | ✅ | ❌ | ❌ | ❌ |
-| OCR — import from screenshots | ✅ | ❌ | ❌ | ❌ |
-| Prompt chaining | ✅ | ❌ | ✅ | ❌ |
-| Built specifically for prompts | ✅ | ✅ | ✅ | ❌ |
+Beyond versioning, closedNote adds structure: organize into collections, chain into multi-step workflows, refine with AI, and import from any image via OCR — all private by default.
 
 ---
 
 ## Version History — Git for Your Prompts
 
-Every edit you save is snapshotted. Jump back to any version, see exactly what changed line by line, and restore with one click — without overwriting your history.
+Every time you save an edit, closedNote snapshots the version. Jump back to any point in time, see exactly what changed line by line, and restore with one click — without overwriting your history.
 
-```diff
-- Act as a coding assistant.
-+ You are an expert software engineer.
-  Review the following code and identify any bugs,
-- security issues.
-+ security issues, or performance problems. Be specific and actionable.
-```
-
-This is what v1 → v2 looks like inside closedNote. No third-party tool does this for everyday prompt users.
+![Version History](./screenshots/versioning01.png)
 
 - Full version timeline on every prompt
 - Visual diff — additions in green, removals in red
@@ -106,7 +85,7 @@ This is what v1 → v2 looks like inside closedNote. No third-party tool does th
 | Diff Engine | Google diff-match-patch |
 | Deployment | Vercel |
 
-Users without API keys get full prompt management + OCR. AI refinement unlocks when they add their own key in Settings.
+Users without API keys get full prompt management + offline OCR. AI features unlock when they add their own key in Settings.
 
 ---
 
@@ -163,7 +142,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## Contributing
 
-Got ideas? Dark mode themes, AI tag suggestions, team sharing — contributions welcome.
+Got ideas? Contributions welcome.
 
 1. Fork this repo
 2. Create a branch: `git checkout -b feature/your-idea`
