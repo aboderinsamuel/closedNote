@@ -87,7 +87,7 @@ export default function SettingsPage() {
     const result = await deleteAccount();
 
     if (result.ok) {
-      router.push("/home");
+      router.push("/");
     } else {
       setError(result.error);
       setIsDeleting(false);

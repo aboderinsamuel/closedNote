@@ -28,7 +28,7 @@ export default function LoginPage() {
       if (!res.ok) {
         setError(res.error);
       } else {
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

@@ -45,7 +45,7 @@ export default function SignupPage() {
         setShowEmailConfirmation(true);
       } else {
         // User created and logged in successfully
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
