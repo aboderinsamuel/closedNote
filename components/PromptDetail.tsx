@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Prompt, PromptVersion } from "@/lib/types";
 import { deletePrompt, savePrompt } from "@/lib/promptData";
 import { useRouter } from "next/navigation";
@@ -24,16 +24,52 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const [historyKey, setHistoryKey] = useState(0);
   const router = useRouter();
   const { removeOptimistic, updateOptimistic } = usePrompts();
+  const titleRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea to fit content
+  const resizeTextarea = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, []);
+
+  // Auto-focus title and resize textarea when entering edit mode
+  useEffect(() => {
+    if (editing) {
+      titleRef.current?.focus();
+      setTimeout(resizeTextarea, 0);
+    }
+  }, [editing, resizeTextarea]);
+
+  // Keyboard shortcuts: Cmd/Ctrl+S to save, Escape to cancel
+  useEffect(() => {
+    if (!editing) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave();
+      }
+      if (e.key === "Escape") {
+        setTitle(localPrompt.title);
+        setContent(localPrompt.content);
+        setEditing(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing, localPrompt]);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(prompt.content);
+    await navigator.clipboard.writeText(localPrompt.content);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDelete = async () => {
     if (!confirm("Delete this prompt? This cannot be undone.")) return;
-
     try {
       removeOptimistic(prompt.id);
       await deletePrompt(prompt.id);
@@ -47,16 +83,14 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const handleSave = async () => {
     setSaving(true);
     setError(null);
-
     try {
       const now = new Date().toISOString();
       const updated = {
         ...prompt,
-        title: title.trim() || prompt.title,
-        content: content.trim() || prompt.content,
+        title: title.trim() || localPrompt.title,
+        content: content.trim() || localPrompt.content,
         updatedAt: now,
       };
-
       await savePrompt(updated);
       setLocalPrompt(updated);
       updateOptimistic(updated);
@@ -101,23 +135,30 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       >
         &larr; Back to prompts
       </Link>
+
       {error && (
         <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
           {error}
         </div>
       )}
+
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6">
+        {/* Title */}
         {editing ? (
           <input
+            ref={titleRef}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 mb-3 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 text-2xl font-semibold"
+            placeholder="Prompt title"
+            className="w-full px-3 py-2 mb-3 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 text-2xl font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
           />
         ) : (
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
             {localPrompt.title}
           </h1>
         )}
+
+        {/* Metadata badges */}
         <div className="flex flex-wrap gap-3 mb-6">
           <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm font-medium">
             {localPrompt.collection}
@@ -127,25 +168,62 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
           </span>
         </div>
 
+        {/* Content area */}
         <div className="relative">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
               Prompt
             </span>
-            <button
-              onClick={handleCopy}
-              className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors"
-            >
-              {copied ? "Copied" : "Copy prompt"}
-            </button>
+            {!editing && (
+              <button
+                onClick={handleCopy}
+                className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors"
+              >
+                {copied ? "Copied!" : "Copy prompt"}
+              </button>
+            )}
           </div>
+
           {editing ? (
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={8}
-              className="w-full p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto text-sm font-mono text-neutral-800 dark:text-neutral-200"
-            />
+            <div>
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  resizeTextarea();
+                }}
+                onPaste={(e) => {
+                  // Let paste happen, then resize
+                  setTimeout(resizeTextarea, 0);
+                  // Trim leading/trailing blank lines on paste
+                  const pasted = e.clipboardData.getData("text");
+                  if (pasted) {
+                    e.preventDefault();
+                    const cleaned = pasted.replace(/^\n+|\n+$/g, "");
+                    const el = e.currentTarget;
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
+                    const newVal = content.slice(0, start) + cleaned + content.slice(end);
+                    setContent(newVal);
+                    setTimeout(() => {
+                      el.selectionStart = el.selectionEnd = start + cleaned.length;
+                      resizeTextarea();
+                    }, 0);
+                  }
+                }}
+                placeholder="Enter your prompt..."
+                className="w-full p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-sm font-mono text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 resize-none overflow-hidden min-h-[160px] transition-shadow"
+              />
+              <div className="flex items-center justify-between mt-1.5">
+                <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                  {content.length} chars
+                </span>
+                <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                  ⌘S to save · Esc to cancel
+                </span>
+              </div>
+            </div>
           ) : (
             <pre className="p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto text-sm font-mono text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap">
               <code>{localPrompt.content}</code>
@@ -153,19 +231,24 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
           )}
         </div>
 
+        {/* Actions */}
         <div className="flex flex-wrap gap-3 pt-4">
           {editing ? (
             <>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-300 dark:text-neutral-900 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {saving ? "Saving..." : "Save"}
               </button>
               <button
-                onClick={() => setEditing(false)}
-                className="w-full sm:w-auto px-4 py-2 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400 dark:hover:bg-neutral-600 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md"
+                onClick={() => {
+                  setTitle(localPrompt.title);
+                  setContent(localPrompt.content);
+                  setEditing(false);
+                }}
+                className="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-sm font-medium rounded-md transition-colors"
               >
                 Cancel
               </button>
@@ -174,19 +257,19 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
             <>
               <button
                 onClick={() => setEditing(true)}
-                className="w-full sm:w-auto px-4 py-2 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md"
+                className="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md transition-colors"
               >
                 Edit
               </button>
               <button
                 onClick={() => setShowHistory((v) => !v)}
-                className="w-full sm:w-auto px-4 py-2 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md"
+                className="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md transition-colors"
               >
                 {showHistory ? "Hide History" : "Version History"}
               </button>
               <button
                 onClick={handleDelete}
-                className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-md"
+                className="px-5 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-sm font-medium rounded-md transition-colors"
               >
                 Delete
               </button>
