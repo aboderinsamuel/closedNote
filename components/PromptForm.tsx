@@ -44,7 +44,7 @@ export function PromptForm() {
     };
 
     addOptimistic(newPrompt);
-    router.push("/");
+    router.push("/dashboard");
 
     savePrompt(newPrompt)
       .then(() => refresh())
