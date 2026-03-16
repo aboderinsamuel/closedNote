@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useRef, useCallback, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { PromptModel } from "@/lib/types";
 import { savePrompt } from "@/lib/promptData";
@@ -15,10 +15,17 @@ export function PromptForm() {
   const [content, setContent] = useState("");
   const [model, setModel] = useState<PromptModel>("gpt-4o");
   const [collection, setCollection] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const resizeTextarea = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     if (!user) {
       router.push("/login");
       return;
@@ -26,7 +33,6 @@ export function PromptForm() {
 
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-
     const newPrompt = {
       id,
       title,
@@ -37,22 +43,29 @@ export function PromptForm() {
       updatedAt: now,
     };
 
-    // Add to UI immediately, navigate now
     addOptimistic(newPrompt);
     router.push("/");
 
-    // Persist in background, then sync
     savePrompt(newPrompt)
       .then(() => refresh())
       .catch((err) => {
         console.error("Error saving prompt:", err);
-        refresh(); // re-sync to remove optimistic entry on failure
+        refresh();
       });
   };
 
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6">
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.requestSubmit();
+          }
+        }}
+        className="space-y-5"
+      >
         <div>
           <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
             Title
@@ -66,19 +79,50 @@ export function PromptForm() {
             className="w-full px-4 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow"
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-            Prompt
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Prompt
+            </label>
+            {content.length > 0 && (
+              <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                {content.length} chars
+              </span>
+            )}
+          </div>
           <textarea
+            ref={textareaRef}
             required
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            placeholder="Enter your prompt here..."
-            className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow resize-y"
+            onChange={(e) => {
+              setContent(e.target.value);
+              resizeTextarea();
+            }}
+            onPaste={(e) => {
+              const pasted = e.clipboardData.getData("text");
+              if (pasted) {
+                e.preventDefault();
+                const cleaned = pasted.replace(/^\n+|\n+$/g, "");
+                const el = e.currentTarget;
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const newVal = content.slice(0, start) + cleaned + content.slice(end);
+                setContent(newVal);
+                setTimeout(() => {
+                  el.selectionStart = el.selectionEnd = start + cleaned.length;
+                  resizeTextarea();
+                }, 0);
+              }
+            }}
+            placeholder="Paste or type your prompt here..."
+            className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow resize-none overflow-hidden min-h-[160px]"
           />
+          <p className="mt-1.5 text-xs text-neutral-400 dark:text-neutral-500 text-right">
+            ⌘Enter to save
+          </p>
         </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
@@ -113,6 +157,7 @@ export function PromptForm() {
             </select>
           </div>
         </div>
+
         <button
           type="submit"
           className="w-full px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors"

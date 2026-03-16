@@ -56,7 +56,7 @@ describe("PromptForm – rendering", () => {
   it("renders all form fields", () => {
     renderWithAuth();
     expect(screen.getByPlaceholderText("Give your prompt a name")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Enter your prompt here...")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste or type your prompt here...")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("e.g. coding")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save prompt/i })).toBeInTheDocument();
   });
@@ -72,7 +72,7 @@ describe("PromptForm – unauthenticated behavior", () => {
   it("redirects to /login on submit when user is not authenticated", async () => {
     renderWithAuth(null);
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Test Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Some content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Some content");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
     expect(mockPush).toHaveBeenCalledWith("/login");
@@ -90,7 +90,7 @@ describe("PromptForm – authenticated submission", () => {
   it("calls addOptimistic and navigates home on valid submit", async () => {
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "My Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Prompt content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Prompt content");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
     expect(mockAddOptimistic).toHaveBeenCalledWith(
@@ -102,7 +102,7 @@ describe("PromptForm – authenticated submission", () => {
   it("defaults collection to 'uncategorized' when left blank", async () => {
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Content");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
     expect(mockAddOptimistic).toHaveBeenCalledWith(
@@ -113,7 +113,7 @@ describe("PromptForm – authenticated submission", () => {
   it("uses the entered collection name when provided", async () => {
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Content");
     await userEvent.type(screen.getByPlaceholderText("e.g. coding"), "engineering");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
@@ -125,7 +125,7 @@ describe("PromptForm – authenticated submission", () => {
   it("calls savePrompt asynchronously after optimistic update", async () => {
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Content");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
     await waitFor(() => {
@@ -138,7 +138,7 @@ describe("PromptForm – authenticated submission", () => {
   it("calls refresh after savePrompt resolves", async () => {
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Content");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
     await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
@@ -150,7 +150,7 @@ describe("PromptForm – authenticated submission", () => {
     jest.spyOn(console, "error").mockImplementation(() => {});
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Content");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
     await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
@@ -159,7 +159,7 @@ describe("PromptForm – authenticated submission", () => {
   it("generated prompt has a non-empty id and ISO timestamp", async () => {
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Prompt");
-    await userEvent.type(screen.getByPlaceholderText("Enter your prompt here..."), "Content");
+    await userEvent.type(screen.getByPlaceholderText("Paste or type your prompt here..."), "Content");
     await userEvent.click(screen.getByRole("button", { name: /save prompt/i }));
 
     const optimisticArg = mockAddOptimistic.mock.calls[0][0];
