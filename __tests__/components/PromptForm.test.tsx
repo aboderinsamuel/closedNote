@@ -96,7 +96,7 @@ describe("PromptForm – authenticated submission", () => {
     expect(mockAddOptimistic).toHaveBeenCalledWith(
       expect.objectContaining({ title: "My Prompt", content: "Prompt content" })
     );
-    expect(mockPush).toHaveBeenCalledWith("/dashboard");
+    expect(mockPush).toHaveBeenCalledWith("/");
   });
 
   it("defaults collection to 'uncategorized' when left blank", async () => {
