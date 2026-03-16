@@ -1,43 +1,78 @@
-# 🗒️ closedNote
+# closedNote
 
-> *"Because even ChatGPT forgets sometimes..."*
+> **Prompts are living documents. closedNote is the only prompt manager that remembers how they evolved.**
 
-### 👉 [closednote.vercel.app](https://closednote.vercel.app) — try it live
-
----
-
-## 👋 What is closedNote?
-
-A web app for saving, organizing, and re-using your best AI prompts — built for students, teachers, engineers, and anyone tired of retyping the same thing twice.
-
----
-
-## 💡 The Story
-
-I got tired of re-engineering my "perfect ChatGPT prompts" every time I needed a particular kind of answer. Then my mum started doing the same thing (don't ask how she got into it 😭). Then my grandma. Then my classmates.
-
-Meanwhile, prompt engineers were dropping crazy tips on X (Twitter) and Stack Overflow, but I had nowhere to store them neatly.
-
-So, I built one. That's what closedNote is all about — a small home to make prompt saving easier for everyone. 🙂
-
-Completely open source, open to contributions, and continuously improving.
+[![Live](https://img.shields.io/badge/live-closednote.vercel.app-black?style=flat-square)](https://closednote.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Deployed on Vercel](https://img.shields.io/badge/deployed-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com)
 
 ---
 
-## 🧠 Features
+## The Problem
 
-- 🔍 **Instant Search** — command palette (`⌘K`) across all prompts
-- 📁 **Collections** — group prompts by topic, project, or vibe
-- 🖼️ **Image to Text (OCR)** — upload screenshots → extract text → save as prompt
-- ✨ **AI Refinement** — clean up extracted text into a polished, reusable prompt
-- 💾 **One-Click Copy** — paste straight into ChatGPT, Claude, Cursor, whatever
-- 🌗 **Dark Mode** — because your eyes matter
-- 📱 **Fully Responsive** — works on mobile without crying
-- 🔒 **Private by Default** — RLS ensures your data stays yours
+PromptBase stores prompts. Notion organizes them. FlowGPT shares them.
+
+**None of them remember how they got there.**
+
+In real life, prompts evolve. You tweak your "code review prompt" three times, and by the fourth iteration you forget what made version 2 actually work. There is no tool aimed at everyday users that tracks *how your prompts change over time* and lets you compare, restore, and iterate on them — until now.
+
+closedNote is built on one thesis: **a prompt is not a sticky note. It's a document with a history.**
 
 ---
 
-## 🖥️ Demo
+## Why closedNote
+
+|  | **closedNote** | PromptBase | FlowGPT | Notion |
+|---|:---:|:---:|:---:|:---:|
+| Version history & visual diff | ✅ | ❌ | ❌ | ❌ |
+| Private by default | ✅ | ❌ | ❌ | ✅ |
+| AI prompt refinement | ✅ | ❌ | ❌ | ❌ |
+| OCR — import from screenshots | ✅ | ❌ | ❌ | ❌ |
+| Prompt chaining | ✅ | ❌ | ✅ | ❌ |
+| Built specifically for prompts | ✅ | ✅ | ✅ | ❌ |
+
+---
+
+## Version History — Git for Your Prompts
+
+Every edit you save is snapshotted. Jump back to any version, see exactly what changed line by line, and restore with one click — without overwriting your history.
+
+```diff
+- Act as a coding assistant.
++ You are an expert software engineer.
+  Review the following code and identify any bugs,
+- security issues.
++ security issues, or performance problems. Be specific and actionable.
+```
+
+This is what v1 → v2 looks like inside closedNote. No third-party tool does this for everyday prompt users.
+
+- Full version timeline on every prompt
+- Visual diff — additions in green, removals in red
+- Restore any version without losing the history chain
+- Versions only created when content actually changes — no noise
+
+---
+
+## All Features
+
+- **Version History** — track every draft with a visual diff and one-click restore *(new)*
+- **Instant Search** — command palette (`⌘K`) across your entire library
+- **Collections** — group prompts by topic, project, or use case
+- **AI Refinement** — clean up rough ideas into polished, reusable prompts using your own API key
+- **OCR Import** — upload a screenshot or photo, extract the text, save it as a prompt
+- **Prompt Chains** — link prompts into multi-step workflows where each output feeds the next
+- **One-Click Copy** — paste straight into ChatGPT, Claude, Cursor, or wherever you work
+- **Private by Default** — row-level security ensures your data is never accessible to others
+- **Dark Mode** — full theme support, system-aware
+- **Fully Responsive** — works on mobile without crying
+
+---
+
+## Demo
 
 ### Dashboard
 
@@ -53,29 +88,29 @@ Completely open source, open to contributions, and continuously improving.
 
 ![OCR Feature](./screenshots/OCR.png)
 
-### 📱 Mobile
+### Mobile
 
-|                                                   |                                                   |
-| ------------------------------------------------- | ------------------------------------------------- |
+|  |  |
+|---|---|
 | ![Mobile Screenshot 1](./screenshots/mobile1.png) | ![Mobile Screenshot 2](./screenshots/mobile2.png) |
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
-**Frontend:** Next.js 14 · React 18 · TypeScript · Tailwind CSS
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 14 (App Router) · React 18 · TypeScript 5.5 · Tailwind CSS 3.4 |
+| Backend | Supabase (PostgreSQL + PKCE Auth + Row-Level Security) · Next.js API Routes |
+| AI / OCR | OpenAI GPT-4o-mini · HuggingFace Zephyr-7b · Tesseract.js (offline fallback) |
+| Diff Engine | Google diff-match-patch |
+| Deployment | Vercel |
 
-**Backend:** Supabase (PostgreSQL + PKCE Auth + RLS) · Next.js API Routes
-
-**AI / OCR:** OpenAI GPT-4o-mini · HuggingFace Zephyr-7b · Tesseract.js (offline fallback)
-
-**Deployment:** Vercel
-
-Users without API keys still get full prompt management + offline OCR. AI features unlock when they add a key in Settings.
+Users without API keys get full prompt management + OCR. AI refinement unlocks when they add their own key in Settings.
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ![Test Results](./screenshots/test.png)
 
@@ -87,14 +122,24 @@ npm test
 
 ---
 
-## ⚡ Run Locally
+## The Story
+
+I got tired of re-engineering my "perfect ChatGPT prompts" every time I needed a particular kind of answer. Then my mum started doing the same thing. Then my grandma. Then my classmates.
+
+Meanwhile, prompt engineers were dropping tips on X and Stack Overflow, but nobody had a good place to store, iterate on, and *remember* them.
+
+So I built one — and added version control, because the best prompt you'll ever write is usually the fourth draft of something you thought was broken.
+
+---
+
+## Run Locally
 
 ```bash
 git clone https://github.com/aboderinsamuel/closedNote.git
 cd closedNote
 npm install
 cp .env.example .env.local
-# Fill in your Supabase keys in .env.local
+# Fill in your Supabase keys
 npm run dev
 ```
 
@@ -104,11 +149,11 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-AI features are optional — users add their own OpenAI or HuggingFace key in Settings.
+**Supabase setup:** run the four migration files in [`/supabase/migrations`](./supabase/migrations) in order inside the Supabase SQL editor.
 
 ---
 
-## 🚀 Deploy
+## Deploy
 
 1. Fork this repo
 2. Import to [Vercel](https://vercel.com) and add the two env vars above
@@ -116,31 +161,32 @@ AI features are optional — users add their own OpenAI or HuggingFace key in Se
 
 ---
 
-## 🛣️ Open Issues & Roadmap
+## Contributing
 
-See the [open issues](https://github.com/aboderinsamuel/closedNote/issues) for what's being worked on.
+Got ideas? Dark mode themes, AI tag suggestions, team sharing — contributions welcome.
 
-Got ideas? Dark mode themes, AI tag suggestions, team sharing, prompt history — contributions welcome!
+1. Fork this repo
+2. Create a branch: `git checkout -b feature/your-idea`
+3. Commit and push
+4. Open a pull request
 
-1. Fork this repo 🍴
-2. Create a branch (`feature/my-new-idea`)
-3. Commit, push, and open a pull request 🚀
-
----
-
-## 👨🏽‍🎓 About
-
-Built by [**Samuel Aboderin**](https://github.com/aboderinsamuel),
-Computer Engineering student at **UNILAG 🇳🇬**
-
-[LinkedIn](https://www.linkedin.com/in/samuelaboderin) · [GitHub](https://github.com/aboderinsamuel)
+See [open issues](https://github.com/aboderinsamuel/closedNote/issues) for what's being worked on.
 
 ---
 
-## 🧾 License
+## Built by
 
-MIT — use it, remix it, improve it. Just don't lock it behind a paywall. 🙏🏽
+**Samuel Aboderin** — Computer Engineering, UNILAG 🇳🇬
+
+[![GitHub](https://img.shields.io/badge/GitHub-aboderinsamuel-black?style=flat-square&logo=github)](https://github.com/aboderinsamuel)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-samuelaboderin-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/samuelaboderin)
 
 ---
 
-*closedNote — because your prompts deserve better than browser history.* ✨
+## License
+
+MIT — use it, remix it, improve it.
+
+---
+
+*closedNote — because your prompts deserve better than browser history.*
