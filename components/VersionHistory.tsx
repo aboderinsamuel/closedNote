@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PromptVersion } from "@/lib/types";
 import { diff_match_patch } from "diff-match-patch";
+import { supabase } from "@/lib/supabase";
 
 interface VersionHistoryProps {
   promptId: string;
@@ -26,7 +27,12 @@ export function VersionHistory({
     const fetchVersions = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/prompts/${promptId}/versions`);
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(`/api/prompts/${promptId}/versions`, {
+          headers: session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {},
+        });
         if (res.ok) {
           const data: PromptVersion[] = await res.json();
           setVersions(data);

@@ -153,6 +153,33 @@ export interface Database {
         }
         Relationships: []
       }
+      prompt_versions: {
+        Row: {
+          id: string
+          prompt_id: string
+          title: string
+          content: string
+          version_number: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          prompt_id: string
+          title: string
+          content: string
+          version_number: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          prompt_id?: string
+          title?: string
+          content?: string
+          version_number?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
