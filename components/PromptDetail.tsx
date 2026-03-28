@@ -12,6 +12,18 @@ interface PromptDetailProps {
   prompt: Prompt;
 }
 
+const MODEL_LABELS: Record<string, string> = {
+  "gpt-4o": "GPT-4o",
+  "gpt-4o-mini": "GPT-4o Mini",
+  "gpt-4": "GPT-4",
+  "claude-3.5": "Claude 3.5",
+  "claude-3": "Claude 3",
+  "gemini-2": "Gemini 2",
+  "gemini-pro": "Gemini Pro",
+  "mistral": "Mistral",
+  "other": "Other",
+};
+
 export function PromptDetail({ prompt }: PromptDetailProps) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -28,7 +40,6 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea to fit content
   const resizeTextarea = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -36,7 +47,6 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     el.style.height = el.scrollHeight + "px";
   }, []);
 
-  // Auto-focus title and resize textarea when entering edit mode
   useEffect(() => {
     if (editing) {
       titleRef.current?.focus();
@@ -44,7 +54,6 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     }
   }, [editing, resizeTextarea]);
 
-  // Keyboard shortcuts: Cmd/Ctrl+S to save, Escape to cancel
   useEffect(() => {
     if (!editing) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -92,7 +101,6 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       const newCollection = collection.trim() || "uncategorized";
       const updated = { ...localPrompt, title: newTitle, content: newContent, collection: newCollection, updatedAt: now };
 
-      // Only create a version if something actually changed
       const contentChanged = newTitle !== localPrompt.title || newContent !== localPrompt.content || newCollection !== localPrompt.collection;
       await savePrompt(updated, !contentChanged);
 
@@ -115,7 +123,6 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     setContent(restored.content);
     setSaving(true);
     try {
-      // skipVersion=true: restore just updates the prompt, no new version created
       await savePrompt({ ...restored, updatedAt: new Date().toISOString() }, true);
       setLocalPrompt(restored);
       updateOptimistic(restored);
@@ -127,14 +134,38 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     }
   };
 
+  function relativeDate(iso: string): string {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    if (days < 30) return `${Math.floor(days / 7)}w ago`;
+    if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+    return `${Math.floor(days / 365)}y ago`;
+  }
+
   return (
-    <div className="space-y-6">
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-      >
-        &larr; Back to prompts
-      </Link>
+    <div className="space-y-4 max-w-3xl mx-auto w-full">
+      {/* Nav row */}
+      <div className="flex items-center gap-3">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back
+        </Link>
+        <span className="text-neutral-200 dark:text-neutral-700">/</span>
+        <span className="text-sm text-neutral-400 dark:text-neutral-500 truncate max-w-xs">
+          {localPrompt.title}
+        </span>
+      </div>
 
       {error && (
         <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
@@ -142,68 +173,97 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         </div>
       )}
 
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6">
-        {/* Title */}
-        {editing ? (
-          <input
-            ref={titleRef}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Prompt title"
-            className="w-full px-3 py-2 mb-3 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 text-2xl font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
-          />
-        ) : (
-          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
-            {localPrompt.title}
-          </h1>
-        )}
+      {/* Main document card */}
+      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg shadow-neutral-300/50 dark:shadow-black/50 ring-1 ring-neutral-900/5 dark:ring-white/5 overflow-hidden">
 
-        {/* Metadata badges / edit row */}
-        {editing ? (
-          <div className="flex flex-wrap gap-3 mb-6">
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-neutral-500 dark:text-neutral-400">Collection</label>
+        {/* Header: title + actions */}
+        <div className="flex items-start gap-4 px-6 sm:px-8 pt-7 pb-4">
+          <div className="flex-1 min-w-0">
+            {editing ? (
               <input
-                type="text"
-                value={collection}
-                onChange={(e) => setCollection(e.target.value)}
-                placeholder="e.g. coding"
-                className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 w-36"
+                ref={titleRef}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Untitled prompt"
+                className="w-full text-2xl sm:text-3xl font-semibold bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-300 dark:placeholder-neutral-700 focus:outline-none border-b border-neutral-200 dark:border-neutral-700 pb-1"
               />
-            </div>
-            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm">
-              {localPrompt.model}
-            </span>
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-3 mb-6">
-            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm font-medium">
-              {localPrompt.collection}
-            </span>
-            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm">
-              {localPrompt.model}
-            </span>
-          </div>
-        )}
-
-        {/* Content area */}
-        <div className="relative">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Prompt
-            </span>
-            {!editing && (
-              <button
-                onClick={handleCopy}
-                className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors"
-              >
-                {copied ? "Copied!" : "Copy prompt"}
-              </button>
+            ) : (
+              <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 dark:text-neutral-100 leading-tight">
+                {localPrompt.title}
+              </h1>
             )}
           </div>
 
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 shrink-0 pt-1">
+            {editing ? (
+              <>
+                <button
+                  onClick={() => {
+                    setTitle(localPrompt.title);
+                    setContent(localPrompt.content);
+                    setCollection(localPrompt.collection);
+                    setEditing(false);
+                  }}
+                  className="px-3.5 py-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="px-4 py-1.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {saving ? "Saving..." : "Save"}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleCopy}
+                  className="px-3.5 py-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="px-4 py-1.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Edit
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Metadata row */}
+        <div className="flex flex-wrap items-center gap-2 px-6 sm:px-8 pb-5">
           {editing ? (
-            <div>
+            <input
+              type="text"
+              value={collection}
+              onChange={(e) => setCollection(e.target.value)}
+              placeholder="collection"
+              className="px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-md text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-300 dark:focus:ring-neutral-600 w-32"
+            />
+          ) : (
+            <span className="px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md text-xs font-medium capitalize">
+              {localPrompt.collection}
+            </span>
+          )}
+          <span className="px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-500 rounded-md text-xs">
+            {MODEL_LABELS[localPrompt.model] ?? localPrompt.model}
+          </span>
+          <span className="text-neutral-300 dark:text-neutral-700 text-xs">·</span>
+          <span className="text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
+            updated {relativeDate(localPrompt.updatedAt)}
+          </span>
+        </div>
+
+        {/* Writing surface */}
+        <div className="mx-4 sm:mx-6 mb-6 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+          {editing ? (
+            <>
               <textarea
                 ref={textareaRef}
                 value={content}
@@ -212,9 +272,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                   resizeTextarea();
                 }}
                 onPaste={(e) => {
-                  // Let paste happen, then resize
                   setTimeout(resizeTextarea, 0);
-                  // Trim leading/trailing blank lines on paste
                   const pasted = e.clipboardData.getData("text");
                   if (pasted) {
                     e.preventDefault();
@@ -231,84 +289,61 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                   }
                 }}
                 placeholder="Enter your prompt..."
-                className="w-full p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-sm font-mono text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 resize-none overflow-hidden min-h-[160px] transition-shadow"
+                className="w-full px-5 py-4 bg-transparent text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 font-mono text-sm leading-relaxed focus:outline-none resize-none overflow-hidden min-h-[200px]"
               />
-              <div className="flex items-center justify-between mt-1.5">
-                <span className="text-xs text-neutral-400 dark:text-neutral-500">
+              <div className="flex items-center justify-between px-5 py-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/40">
+                <span className="text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
                   {content.length} chars
                 </span>
                 <span className="text-xs text-neutral-400 dark:text-neutral-500">
-                  Ctrl/Cmd+S to save · Esc to cancel
+                  Ctrl/Cmd+S to save, Esc to cancel
                 </span>
               </div>
-            </div>
+            </>
           ) : (
-            <pre className="p-4 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto text-sm font-mono text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap">
+            <pre className="px-5 py-4 text-sm font-mono text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap overflow-x-auto leading-relaxed">
               <code>{localPrompt.content}</code>
             </pre>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-wrap gap-3 pt-4">
-          {editing ? (
-            <>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="px-5 py-2 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-300 dark:text-neutral-900 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
-              <button
-                onClick={() => {
-                  setTitle(localPrompt.title);
-                  setContent(localPrompt.content);
-                  setCollection(localPrompt.collection);
-                  setEditing(false);
-                }}
-                className="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-sm font-medium rounded-md transition-colors"
-              >
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setEditing(true)}
-                className="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md transition-colors"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => setShowHistory((v) => !v)}
-                className="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 text-sm font-medium rounded-md transition-colors"
-              >
-                {showHistory ? "Hide History" : "Version History"}
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-5 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-sm font-medium rounded-md transition-colors"
-              >
-                Delete
-              </button>
-            </>
-          )}
-        </div>
+        {/* Footer actions (view mode only) */}
+        {!editing && (
+          <div className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-950/30 px-6 sm:px-8 py-3 flex items-center justify-between">
+            <button
+              onClick={() => setShowHistory((v) => !v)}
+              className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {showHistory ? "Hide history" : "Version history"}
+            </button>
+            <button
+              onClick={handleDelete}
+              className="text-sm text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
 
+      {/* Version history panel */}
       {showHistory && (
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6">
-          <h2 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-4">
-            Version History
-          </h2>
-          <VersionHistory
-            key={historyKey}
-            promptId={localPrompt.id}
-            currentContent={localPrompt.content}
-            currentTitle={localPrompt.title}
-            onRestore={handleRestore}
-          />
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg shadow-neutral-300/50 dark:shadow-black/50 ring-1 ring-neutral-900/5 dark:ring-white/5 overflow-hidden">
+          <div className="px-6 sm:px-8 py-5">
+            <h2 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-4">
+              Version history
+            </h2>
+            <VersionHistory
+              key={historyKey}
+              promptId={localPrompt.id}
+              currentContent={localPrompt.content}
+              currentTitle={localPrompt.title}
+              onRestore={handleRestore}
+            />
+          </div>
         </div>
       )}
     </div>
