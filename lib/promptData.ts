@@ -106,6 +106,17 @@ export async function savePrompt(prompt: Prompt, skipVersion = false): Promise<v
   }
 }
 
+export async function savePromptTags(promptId: string, tags: string[]): Promise<void> {
+  if (!tags.length) return;
+  const { error } = await supabase
+    .from("tags")
+    .insert(tags.map((tag) => ({ prompt_id: promptId, tag })));
+  if (error) {
+    console.error("[promptData] Failed to save tags:", error);
+    throw error;
+  }
+}
+
 export async function deletePrompt(id: string): Promise<void> {
   try {
     const { error } = await supabase.from("prompts").delete().eq("id", id);

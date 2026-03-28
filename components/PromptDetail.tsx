@@ -18,6 +18,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const [localPrompt, setLocalPrompt] = useState(prompt);
   const [title, setTitle] = useState(prompt.title);
   const [content, setContent] = useState(prompt.content);
+  const [collection, setCollection] = useState(prompt.collection);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -54,6 +55,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       if (e.key === "Escape") {
         setTitle(localPrompt.title);
         setContent(localPrompt.content);
+        setCollection(localPrompt.collection);
         setEditing(false);
       }
     };
@@ -87,10 +89,11 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       const now = new Date().toISOString();
       const newTitle = title.trim() || localPrompt.title;
       const newContent = content.trim() || localPrompt.content;
-      const updated = { ...localPrompt, title: newTitle, content: newContent, updatedAt: now };
+      const newCollection = collection.trim() || "uncategorized";
+      const updated = { ...localPrompt, title: newTitle, content: newContent, collection: newCollection, updatedAt: now };
 
       // Only create a version if something actually changed
-      const contentChanged = newTitle !== localPrompt.title || newContent !== localPrompt.content;
+      const contentChanged = newTitle !== localPrompt.title || newContent !== localPrompt.content || newCollection !== localPrompt.collection;
       await savePrompt(updated, !contentChanged);
 
       setLocalPrompt(updated);
@@ -155,15 +158,33 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
           </h1>
         )}
 
-        {/* Metadata badges */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm font-medium">
-            {localPrompt.collection}
-          </span>
-          <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm">
-            {localPrompt.model}
-          </span>
-        </div>
+        {/* Metadata badges / edit row */}
+        {editing ? (
+          <div className="flex flex-wrap gap-3 mb-6">
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-neutral-500 dark:text-neutral-400">Collection</label>
+              <input
+                type="text"
+                value={collection}
+                onChange={(e) => setCollection(e.target.value)}
+                placeholder="e.g. coding"
+                className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 w-36"
+              />
+            </div>
+            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm">
+              {localPrompt.model}
+            </span>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-3 mb-6">
+            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm font-medium">
+              {localPrompt.collection}
+            </span>
+            <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-md text-sm">
+              {localPrompt.model}
+            </span>
+          </div>
+        )}
 
         {/* Content area */}
         <div className="relative">
@@ -217,7 +238,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                   {content.length} chars
                 </span>
                 <span className="text-xs text-neutral-400 dark:text-neutral-500">
-                  ⌘S to save · Esc to cancel
+                  Ctrl/Cmd+S to save · Esc to cancel
                 </span>
               </div>
             </div>
@@ -243,6 +264,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                 onClick={() => {
                   setTitle(localPrompt.title);
                   setContent(localPrompt.content);
+                  setCollection(localPrompt.collection);
                   setEditing(false);
                 }}
                 className="px-5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-sm font-medium rounded-md transition-colors"
