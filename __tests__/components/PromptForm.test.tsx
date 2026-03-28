@@ -20,7 +20,11 @@ import { PromptForm } from "@/components/PromptForm";
 // and call mockReturnValue() to inject our named jest.fn() references.
 jest.mock("next/navigation", () => ({ useRouter: jest.fn() }));
 jest.mock("@/lib/hooks/usePrompts", () => ({ usePrompts: jest.fn() }));
-jest.mock("@/lib/promptData", () => ({ savePrompt: jest.fn(() => Promise.resolve()) }));
+jest.mock("@/lib/promptData", () => ({
+  savePrompt: jest.fn(() => Promise.resolve()),
+  savePromptTags: jest.fn(() => Promise.resolve()),
+  groupPromptsByCollection: jest.fn(() => ({})),
+}));
 jest.mock("@/components/AuthProvider", () => ({ useAuth: jest.fn() }));
 
 import { useRouter } from "next/navigation";
