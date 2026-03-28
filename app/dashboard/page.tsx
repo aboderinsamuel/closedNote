@@ -83,7 +83,7 @@ function DashboardContent() {
         <div className="max-w-sm mx-auto text-center py-20">
           <p className="text-neutral-900 dark:text-neutral-100 font-medium mb-2">No prompts yet</p>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">
-            Create your first one and it'll show up here.
+            Create your first one and it&apos;ll show up here.
           </p>
           <Link
             href="/prompts/new"
