@@ -67,7 +67,7 @@ describe("PromptForm - rendering", () => {
 
   it("renders the model select with default value gpt-4o", () => {
     renderWithAuth();
-    const select = screen.getByRole("combobox", { name: /model/i }) as HTMLSelectElement;
+    const select = screen.getByLabelText(/model/i) as HTMLSelectElement;
     expect(select.value).toBe("gpt-4o");
   });
 });

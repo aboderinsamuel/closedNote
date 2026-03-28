@@ -223,10 +223,11 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+            <label htmlFor="model-select" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
               Model
             </label>
             <select
+              id="model-select"
               value={model}
               onChange={(e) => { setModel(e.target.value as PromptModel); markDirty(); }}
               className="w-full px-4 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow"
