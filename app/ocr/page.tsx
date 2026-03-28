@@ -87,7 +87,7 @@ export default function OCRPage() {
     const userKey = getUserApiKey();
 
     if (!userKey) {
-      // No API key — go straight to Tesseract
+      // No API key, go straight to Tesseract
       try {
         const Tesseract = await import("tesseract.js");
         const result = await Tesseract.recognize(imageFile, "eng", {});
@@ -194,7 +194,7 @@ export default function OCRPage() {
         {/* Page title */}
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Image to Text</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Extract and refine text from images using AI</p>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Pull text out of any image, refine it if you need to.</p>
         </div>
 
         {!user && (

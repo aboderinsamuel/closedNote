@@ -6,28 +6,28 @@ labels: enhancement
 assignees: ''
 ---
 
-## 💡 What Do You Want?
+## What do you want?
 Describe the feature you'd love to see in closedNote.
 
-## 🎯 What Problem Does This Solve?
-Why do you need this? What's frustrating you right now?  
+## What problem does this solve?
+Why do you need this? What's frustrating you right now?
 Ex: "I'm always frustrated when I can't find my old prompts from last month..."
 
-## 🚀 How Should It Work?
+## How should it work?
 Walk me through it. What would the perfect version of this look like?
 
-## 🔄 Any Other Ways to Do It?
+## Any other approaches?
 Have you thought of alternative solutions? Other ways this could work?
 
-## 📸 Show Me What You Mean
+## Show me what you mean
 Got a sketch? A screenshot from another app? A napkin drawing? Share it!
 
-## ✨ Who Benefits?
+## Who benefits?
 - Who would use this feature the most?
 - How would it make closedNote better?
 
-## 🧠 Anything Else?
+## Anything else?
 Links, references, examples, whatever helps me understand your vision.
 
-## 🏷️ Does This Build on Anything?
+## Does this build on anything?
 Is there an existing feature this connects to or expands?

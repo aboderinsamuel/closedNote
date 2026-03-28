@@ -1,15 +1,15 @@
 // Quick script to check if environment variables are loaded in production
 // Add this to your browser console on your deployed site
 
-console.log("🔍 Environment Check for closedNote");
+console.log("Environment Check for closedNote");
 console.log("=====================================");
 console.log("");
 
 // Check if running in browser
 if (typeof window === "undefined") {
-  console.log("❌ Not running in browser");
+  console.log("Not running in browser");
 } else {
-  console.log("✅ Running in browser");
+  console.log("Running in browser");
 }
 
 // Check environment variables
@@ -21,18 +21,18 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (supabaseUrl) {
-  console.log("✅ NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl);
+  console.log("NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl);
 } else {
-  console.log("❌ NEXT_PUBLIC_SUPABASE_URL: NOT SET");
+  console.log("NEXT_PUBLIC_SUPABASE_URL: NOT SET");
 }
 
 if (supabaseKey) {
   console.log(
-    "✅ NEXT_PUBLIC_SUPABASE_ANON_KEY:",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY:",
     supabaseKey.substring(0, 20) + "..."
   );
 } else {
-  console.log("❌ NEXT_PUBLIC_SUPABASE_ANON_KEY: NOT SET");
+  console.log("NEXT_PUBLIC_SUPABASE_ANON_KEY: NOT SET");
 }
 
 // Check localStorage
@@ -46,18 +46,18 @@ const authKeys = Object.keys(localStorage).filter(
 
 if (authKeys.length > 0) {
   authKeys.forEach((key) => {
-    console.log("📦", key);
+    console.log(key);
   });
 } else {
-  console.log("ℹ️  No auth keys found (not logged in)");
+  console.log("No auth keys found (not logged in)");
 }
 
 // Check current URL
 console.log("");
 console.log("Current Location:");
 console.log("-----------------");
-console.log("🌐 URL:", window.location.href);
-console.log("🏠 Origin:", window.location.origin);
+console.log("URL:", window.location.href);
+console.log("Origin:", window.location.origin);
 
 console.log("");
 console.log("=====================================");

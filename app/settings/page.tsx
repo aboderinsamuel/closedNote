@@ -223,7 +223,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <p className="text-xs text-neutral-400 dark:text-neutral-500">All keys are stored only in your browser&apos;s localStorage — never sent to our servers.</p>
+            <p className="text-xs text-neutral-400 dark:text-neutral-500">All keys are stored only in your browser&apos;s localStorage, never sent to our servers.</p>
           </div>
         </section>
 

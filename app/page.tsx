@@ -23,7 +23,7 @@ const comparison = [
   { feature: "Version history & diff view", closedNote: true, promptBase: false, flowGPT: false, notion: false },
   { feature: "Private by default", closedNote: true, promptBase: false, flowGPT: false, notion: true },
   { feature: "AI prompt refinement", closedNote: true, promptBase: false, flowGPT: false, notion: false },
-  { feature: "OCR — import from screenshots", closedNote: true, promptBase: false, flowGPT: false, notion: false },
+  { feature: "OCR, import from screenshots", closedNote: true, promptBase: false, flowGPT: false, notion: false },
   { feature: "Prompt chaining", closedNote: true, promptBase: false, flowGPT: true, notion: false },
   { feature: "Built specifically for prompts", closedNote: true, promptBase: true, flowGPT: true, notion: false },
 ];
@@ -42,7 +42,7 @@ const features = [
   {
     badge: null,
     title: "AI Refinement",
-    description: "Paste a rough idea and let AI restructure it into a clean, reusable prompt — using your own API key.",
+    description: "Paste a rough idea and let AI restructure it into a clean, reusable prompt, using your own API key.",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -52,7 +52,7 @@ const features = [
   {
     badge: null,
     title: "OCR Import",
-    description: "Photograph a whiteboard, screenshot a chat, or upload any image — closedNote extracts the text and saves it as a prompt.",
+    description: "Photograph a whiteboard, screenshot a chat, or upload any image, and closedNote pulls out the text and saves it as a prompt.",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -79,11 +79,11 @@ export default function MarketingHome() {
     <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
       <div className="max-w-5xl mx-auto py-4 sm:py-8 px-4">
 
-        {/* ── Hero ── */}
+        {/* Hero */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs text-neutral-600 dark:text-neutral-400 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            New — Version History is live
+            New, Version History is live
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 leading-[1.05]">
@@ -98,7 +98,7 @@ export default function MarketingHome() {
 
           <p className="text-base sm:text-lg text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto mb-6 leading-relaxed">
             PromptBase stores them. Notion organizes them. closedNote is the only tool that
-            <span className="text-neutral-900 dark:text-neutral-100 font-medium"> remembers how they evolved</span> — every draft, every edit, every version.
+            <span className="text-neutral-900 dark:text-neutral-100 font-medium"> remembers how they evolved</span>, every draft, every edit, every version.
           </p>
 
           <div className="flex flex-wrap justify-center gap-3">
@@ -124,13 +124,13 @@ export default function MarketingHome() {
           </div>
         </div>
 
-        {/* ── Powered by ── */}
+        {/* Powered by */}
         <div className="mb-10">
           <p className="text-center text-xs uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">Powered by</p>
           <PoweredByCarousel />
         </div>
 
-        {/* ── The Problem ── */}
+        {/* The Problem */}
         <div className="mb-14">
           <div className="text-center mb-7">
             <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">The gap</p>
@@ -184,7 +184,7 @@ export default function MarketingHome() {
           </div>
         </div>
 
-        {/* ── Comparison Table ── */}
+        {/* Comparison Table */}
         <div className="mb-14">
           <div className="text-center mb-8">
             <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">How we stack up</p>
@@ -225,7 +225,7 @@ export default function MarketingHome() {
           </div>
         </div>
 
-        {/* ── Version History Spotlight ── */}
+        {/* Version History Spotlight */}
         <div className="mb-14">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 items-center">
             <div>
@@ -236,14 +236,14 @@ export default function MarketingHome() {
                 Git for your prompts.
               </h2>
               <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed mb-6">
-                Every time you save an edit, closedNote snapshots the version. Jump back to any point in time, see exactly what changed line-by-line, and restore with one click — without overwriting your history.
+                Every time you save an edit, closedNote snapshots the version. Jump back to any point in time, see exactly what changed line-by-line, and restore with one click, without overwriting your history.
               </p>
               <ul className="space-y-3">
                 {[
                   "Full version timeline on every prompt",
-                  "Visual diff — green added, red removed",
+                  "Visual diff, green added, red removed",
                   "Restore any version without losing history",
-                  "No bloat — only versions when content changes",
+                  "No bloat, only versions when content changes",
                 ].map((point) => (
                   <li key={point} className="flex items-start gap-2.5 text-sm text-neutral-600 dark:text-neutral-300">
                     <CheckIcon />
@@ -260,7 +260,7 @@ export default function MarketingHome() {
                 <div className="w-2.5 h-2.5 rounded-full bg-red-400/70" />
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/70" />
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400/70" />
-                <span className="ml-2 text-xs text-neutral-400">Version History — Code Review Prompt</span>
+                <span className="ml-2 text-xs text-neutral-400">Version History, Code Review Prompt</span>
               </div>
               <div className="flex min-h-[200px]">
                 {/* Timeline */}
@@ -308,7 +308,7 @@ export default function MarketingHome() {
           </div>
         </div>
 
-        {/* ── Features Grid ── */}
+        {/* Features Grid */}
         <div className="mb-14">
           <div className="text-center mb-7">
             <p className="text-xs uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">Everything included</p>
@@ -341,7 +341,7 @@ export default function MarketingHome() {
           </div>
         </div>
 
-        {/* ── CTA ── */}
+        {/* CTA */}
         <div className="text-center rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-10 sm:p-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
             Your prompts deserve better.
@@ -354,7 +354,7 @@ export default function MarketingHome() {
               href={user ? "/dashboard" : "/signup"}
               className="px-8 py-3 bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-200 dark:text-neutral-900 text-white font-medium rounded-full transition-colors"
             >
-              {user ? "Go to my prompts" : "Get started — it's free"}
+              {user ? "Go to my prompts" : "Get started, it's free"}
             </Link>
             {!user && (
               <Link

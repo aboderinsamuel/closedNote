@@ -2,14 +2,13 @@
 
 import { Suspense } from "react";
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import { groupPromptsByCollection, filterPrompts } from "@/lib/promptData";
 import { PromptModel } from "@/lib/types";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { Layout } from "@/components/Layout";
 import { PromptCollection } from "@/components/PromptCollection";
-import { UseCasesShowcase } from "@/components/UseCasesShowcase";
-import { PoweredByCarousel } from "@/components/PoweredByCarousel";
 import { usePrompts } from "@/lib/hooks/usePrompts";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -81,23 +80,17 @@ function DashboardContent() {
           ))}
         </div>
       ) : allPrompts.length === 0 ? (
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="font-serif-title text-4xl sm:text-5xl font-normal text-neutral-900 dark:text-neutral-100 mb-4">
-              closedNote
-            </h1>
-            <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto">
-              Your personal prompt notebook. Create, organize, and refine AI
-              prompts with speed and clarity.
-            </p>
-          </div>
-          <div className="mb-8">
-            <div className="text-center mb-2 text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Powered by
-            </div>
-            <PoweredByCarousel />
-          </div>
-          <UseCasesShowcase />
+        <div className="max-w-sm mx-auto text-center py-20">
+          <p className="text-neutral-900 dark:text-neutral-100 font-medium mb-2">No prompts yet</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">
+            Create your first one and it'll show up here.
+          </p>
+          <Link
+            href="/prompts/new"
+            className="inline-flex items-center px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white font-medium rounded-full transition-colors text-sm"
+          >
+            + New prompt
+          </Link>
         </div>
       ) : (
         <div className="max-w-5xl mx-auto w-full">

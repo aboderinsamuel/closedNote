@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "./AuthProvider";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -17,6 +17,7 @@ export function Header({ promptCount, showMobileMenu = true }: HeaderProps) {
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const { user, logout, loading: authLoading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -134,13 +135,13 @@ export function Header({ promptCount, showMobileMenu = true }: HeaderProps) {
                       <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">{user.email}</p>
                     </div>
                     <div className="py-1">
-                      <Link href="/dashboard" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                      <button onClick={() => { setIsAccountMenuOpen(false); router.push("/dashboard"); }} className="flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors w-full text-left">
                         <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">My Prompts</p>
                           <p className="text-xs text-neutral-600 dark:text-neutral-400">{promptCount} {promptCount === 1 ? "prompt" : "prompts"}</p>
                         </div>
-                      </Link>
+                      </button>
                       <Link href="/chains" onClick={() => setIsAccountMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
                         <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Threads</p>

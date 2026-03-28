@@ -33,8 +33,7 @@ export default function DocsPage() {
             How closedNote works
           </h1>
           <p className="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed mb-6">
-            Technical overview of the architecture, features, and design decisions behind closedNote —
-            the only prompt manager that tracks how your prompts evolve.
+            Technical overview of the architecture, features, and design decisions behind closedNote, the only prompt manager that tracks how your prompts evolve.
           </p>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-400 to-neutral-600 flex items-center justify-center text-white text-sm font-semibold select-none">
@@ -91,13 +90,13 @@ export default function DocsPage() {
                 times, and by the fourth iteration you&apos;ve forgotten what made version 2
                 actually work. closedNote is built on one thesis:{" "}
                 <strong className="text-neutral-900 dark:text-neutral-100">
-                  a prompt is not a sticky note — it&apos;s a document with a history.
+                  a prompt is not a sticky note, it&apos;s a document with a history.
                 </strong>
               </p>
               <p>
                 Beyond versioning, closedNote adds structure: prompts organized into collections,
                 chained into multi-step workflows, refined by AI, and importable from any image
-                via OCR — all private by default, all in one place.
+                via OCR, all private by default, all in one place.
               </p>
             </div>
           </section>
@@ -122,11 +121,11 @@ export default function DocsPage() {
                 Clicking any version renders a live diff against the current content using
                 Google&apos;s{" "}
                 <code className="text-sm font-mono bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded">diff-match-patch</code>{" "}
-                library — additions in green, removals in red.
+                library, additions in green, removals in red.
               </p>
               <p>
                 Restoring a version updates the prompt content without creating a new version
-                entry — preserving the history chain exactly as it was. A new version is only
+                entry, preserving the history chain exactly as it was. A new version is only
                 created when the user edits and saves content that differs from the last saved state.
               </p>
             </div>
@@ -188,20 +187,20 @@ export default function DocsPage() {
               <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-5">
                 <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">Frontend</p>
                 <ul className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
-                  <li><span className="font-medium">Next.js 14</span> — App Router, RSC</li>
-                  <li><span className="font-medium">React 18</span> — hooks, client components</li>
-                  <li><span className="font-medium">Tailwind CSS 3.4</span> — utility-first styling</li>
-                  <li><span className="font-medium">TypeScript 5.5</span> — full type safety</li>
-                  <li><span className="font-medium">diff-match-patch</span> — version diff engine</li>
+                  <li><span className="font-medium">Next.js 14</span>, App Router, RSC</li>
+                  <li><span className="font-medium">React 18</span>, hooks, client components</li>
+                  <li><span className="font-medium">Tailwind CSS 3.4</span>, utility-first styling</li>
+                  <li><span className="font-medium">TypeScript 5.5</span>, full type safety</li>
+                  <li><span className="font-medium">diff-match-patch</span>, version diff engine</li>
                 </ul>
               </div>
               <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-5">
                 <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">Backend</p>
                 <ul className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
-                  <li><span className="font-medium">Supabase</span> — PostgreSQL + Auth</li>
-                  <li><span className="font-medium">PKCE flow</span> — secure auth</li>
-                  <li><span className="font-medium">Row Level Security</span> — per-user isolation</li>
-                  <li><span className="font-medium">Vercel</span> — edge deployment</li>
+                  <li><span className="font-medium">Supabase</span>, PostgreSQL + Auth</li>
+                  <li><span className="font-medium">PKCE flow</span>, secure auth</li>
+                  <li><span className="font-medium">Row Level Security</span>, per-user isolation</li>
+                  <li><span className="font-medium">Vercel</span>, edge deployment</li>
                 </ul>
               </div>
             </div>
@@ -229,9 +228,9 @@ export default function DocsPage() {
               OCR & AI Refinement
             </h2>
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed mb-6">
-              Upload a screenshot, photo, or scan — GPT-4o Vision extracts the text,
-              and the AI refinement step restructures it into a clean, reusable prompt.
-              A Tesseract.js fallback handles offline cases.
+              Upload a screenshot, photo, or scan, and GPT-4o Vision pulls out the text.
+              The refinement step cleans it up into something reusable.
+              Tesseract.js kicks in as a fallback when you&apos;re offline.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-5">
@@ -265,7 +264,7 @@ export default function DocsPage() {
               AI Provider
             </h2>
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed mb-4">
-              Chain runs and chat refinement use HuggingFace&apos;s Zephyr-7B by default —
+              Chain runs and chat refinement use HuggingFace&apos;s Zephyr-7B by default,
               free, no billing required. If you add your own OpenAI key in{" "}
               <Link href="/settings" className="underline underline-offset-2 text-neutral-900 dark:text-neutral-100 hover:opacity-70 transition-opacity">
                 Settings
@@ -276,8 +275,8 @@ export default function DocsPage() {
               <p className="text-neutral-500 mb-2"># .env.local</p>
               <p><span className="text-amber-400">NEXT_PUBLIC_SUPABASE_URL</span><span className="text-neutral-300">=https://xxx.supabase.co</span><span className="text-neutral-600 ml-4"># required</span></p>
               <p><span className="text-amber-400">NEXT_PUBLIC_SUPABASE_ANON_KEY</span><span className="text-neutral-300">=eyJ...</span><span className="text-neutral-600 ml-4"># required</span></p>
-              <p className="mt-2"><span className="text-amber-400">OPENAI_API_KEY</span><span className="text-neutral-300">=sk-...</span><span className="text-neutral-600 ml-4"># optional — enables GPT-4o OCR + AI</span></p>
-              <p><span className="text-amber-400">HUGGINGFACE_API_KEY</span><span className="text-neutral-300">=hf_...</span><span className="text-neutral-600 ml-4"># optional — free AI fallback</span></p>
+              <p className="mt-2"><span className="text-amber-400">OPENAI_API_KEY</span><span className="text-neutral-300">=sk-...</span><span className="text-neutral-600 ml-4"># optional, enables GPT-4o OCR + AI</span></p>
+              <p><span className="text-amber-400">HUGGINGFACE_API_KEY</span><span className="text-neutral-300">=hf_...</span><span className="text-neutral-600 ml-4"># optional, free AI fallback</span></p>
             </div>
           </section>
 
@@ -289,7 +288,7 @@ export default function DocsPage() {
               Database
             </h2>
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed mb-5">
-              Six tables in PostgreSQL via Supabase. All have RLS enabled — every
+              Six tables in PostgreSQL via Supabase. All have RLS enabled, every
               query is automatically scoped to the authenticated user.
             </p>
             <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden">
@@ -304,7 +303,7 @@ export default function DocsPage() {
                   {[
                     ["users", "Auth profile, synced from Supabase Auth on signup"],
                     ["prompts", "Title, content, model, collection, user_id"],
-                    ["prompt_versions", "Versioned snapshots of each prompt — powers the diff view"],
+                    ["prompt_versions", "Versioned snapshots of each prompt, powers the diff view"],
                     ["tags", "Many-to-many; cascade-deletes with prompt"],
                     ["prompt_chains", "Titled sequences of steps, owned by user"],
                     ["chain_steps", "Ordered steps with content and output variables"],
@@ -335,8 +334,8 @@ export default function DocsPage() {
             </h2>
             <ul className="space-y-4">
               {[
-                ["Row Level Security", "All tables enforce RLS. Every query is automatically filtered to the authenticated user's data at the database level — including prompt_versions."],
-                ["PKCE Auth Flow", "Supabase Auth uses PKCE (Proof Key for Code Exchange). Sessions are stored ephemerally — cleared when the browser closes."],
+                ["Row Level Security", "All tables enforce RLS. Every query is automatically filtered to the authenticated user's data at the database level, including prompt_versions."],
+                ["PKCE Auth Flow", "Supabase Auth uses PKCE (Proof Key for Code Exchange). Sessions are stored ephemerally, cleared when the browser closes."],
                 ["API key privacy", "User-supplied OpenAI keys are stored only in localStorage and passed per-request. They are never persisted server-side."],
                 ["Authenticated API routes", "The /api/prompts/[id]/versions endpoint validates the user's JWT before any query. No RLS bypass is possible."],
                 ["HTTPS", "All traffic is encrypted in transit. Enforced by Vercel on production."],

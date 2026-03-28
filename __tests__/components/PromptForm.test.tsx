@@ -13,10 +13,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PromptForm } from "@/components/PromptForm";
 
-// ── Mocks ────────────────────────────────────────────────────────────────────
+// Mocks
 
 // jest.mock() is hoisted before variable declarations, so factories must only
-// use jest.fn() inline — no outer variables. We then import the mocked hooks
+// use jest.fn() inline, no outer variables. We then import the mocked hooks
 // and call mockReturnValue() to inject our named jest.fn() references.
 jest.mock("next/navigation", () => ({ useRouter: jest.fn() }));
 jest.mock("@/lib/hooks/usePrompts", () => ({ usePrompts: jest.fn() }));
@@ -33,7 +33,7 @@ const mockAddOptimistic = jest.fn();
 const mockRefresh = jest.fn(() => Promise.resolve());
 const mockSavePrompt = savePrompt as jest.Mock;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers
 
 function renderWithAuth(user: object | null = { id: "user-1", email: "test@example.com" }) {
   (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
@@ -50,9 +50,9 @@ function renderWithAuth(user: object | null = { id: "user-1", email: "test@examp
   return render(<PromptForm />);
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+// Tests
 
-describe("PromptForm – rendering", () => {
+describe("PromptForm - rendering", () => {
   it("renders all form fields", () => {
     renderWithAuth();
     expect(screen.getByPlaceholderText("Give your prompt a name")).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe("PromptForm – rendering", () => {
   });
 });
 
-describe("PromptForm – unauthenticated behavior", () => {
+describe("PromptForm - unauthenticated behavior", () => {
   it("redirects to /login on submit when user is not authenticated", async () => {
     renderWithAuth(null);
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Test Prompt");
@@ -80,7 +80,7 @@ describe("PromptForm – unauthenticated behavior", () => {
   });
 });
 
-describe("PromptForm – authenticated submission", () => {
+describe("PromptForm - authenticated submission", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSavePrompt.mockResolvedValue(undefined);
@@ -146,7 +146,7 @@ describe("PromptForm – authenticated submission", () => {
 
   it("still calls refresh when savePrompt rejects, to roll back the optimistic entry", async () => {
     mockSavePrompt.mockRejectedValueOnce(new Error("network error"));
-    // PromptForm logs the error — silence it so Jest output stays clean
+    // PromptForm logs the error, silence it so Jest output stays clean
     jest.spyOn(console, "error").mockImplementation(() => {});
     renderWithAuth();
     await userEvent.type(screen.getByPlaceholderText("Give your prompt a name"), "Prompt");

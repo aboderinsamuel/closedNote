@@ -60,21 +60,21 @@ export async function testSupabaseConnection() {
  // Log health check results to console
  
 export async function logSupabaseHealth() {
-  console.log("🔍 Supabase Health Check");
+  console.log("Supabase Health Check");
   console.log("========================");
-  
+
   const results = await testSupabaseConnection();
-  
-  console.log("✅ Environment Variables:", results.envVarsConfigured ? "OK" : "FAILED");
-  console.log("✅ URL Format:", results.urlFormat ? "OK" : "FAILED");
-  console.log("✅ Database Connection:", results.connectionTest ? "OK" : "FAILED");
-  console.log("✅ Auth Service:", results.authReady ? "OK" : "FAILED");
-  
+
+  console.log("Environment Variables:", results.envVarsConfigured ? "OK" : "FAILED");
+  console.log("URL Format:", results.urlFormat ? "OK" : "FAILED");
+  console.log("Database Connection:", results.connectionTest ? "OK" : "FAILED");
+  console.log("Auth Service:", results.authReady ? "OK" : "FAILED");
+
   if (results.errors.length > 0) {
-    console.log("\n❌ Errors:");
+    console.log("\nErrors:");
     results.errors.forEach((err, i) => console.log(`  ${i + 1}. ${err}`));
   } else {
-    console.log("\n✅ All systems operational!");
+    console.log("\nAll systems operational.");
   }
   
   return results;

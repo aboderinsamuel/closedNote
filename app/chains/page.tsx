@@ -59,7 +59,7 @@ export default function ChainsPage() {
               Prompt Threads
             </h1>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Build multi-step prompt workflows and run them sequentially.
+              String prompts together and run them in sequence.
             </p>
           </div>
           <Link
@@ -108,7 +108,7 @@ export default function ChainsPage() {
               No threads yet
             </h2>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 max-w-sm">
-              Create your first prompt thread to build multi-step AI workflows. Thread prompts together and run them in sequence.
+              Create a thread to chain prompts and run them one by one.
             </p>
             <Link
               href="/chains/new"

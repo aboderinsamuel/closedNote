@@ -10,14 +10,14 @@ const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    "⚠️ Missing Supabase environment variables! Using demo mode with local storage."
+    "Missing Supabase environment variables. Using demo mode with local storage."
   );
-  console.warn("📖 See SUPABASE_SETUP.md for production setup instructions");
+  console.warn("See SUPABASE_SETUP.md for production setup instructions");
 }
 
 // Validate URL format if provided
 if (supabaseUrl && !supabaseUrl.startsWith('http')) {
-  console.error("❌ Invalid NEXT_PUBLIC_SUPABASE_URL format. Must start with http:// or https://");
+  console.error("Invalid NEXT_PUBLIC_SUPABASE_URL format. Must start with http:// or https://");
   console.warn("Using demo mode instead.");
 }
 

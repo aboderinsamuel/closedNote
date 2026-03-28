@@ -241,7 +241,7 @@ export function onAuthStateChange(
       return;
     }
 
-    // Build user directly from the session — no extra network calls.
+    // Build user directly from the session, no extra network calls.
     // All needed data (id, email, display_name, timestamps) is already present
     // in the session object. Doing an async DB fetch here caused timing bugs:
     // multiple in-flight fetches on rapid page loads led to stale callbacks

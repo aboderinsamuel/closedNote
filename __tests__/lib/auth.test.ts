@@ -29,9 +29,9 @@ import { supabase } from "@/lib/supabase";
 
 const mockAuth = supabase.auth as jest.Mocked<typeof supabase.auth>;
 
-// ─── registerUser ────────────────────────────────────────────────────────────
+// registerUser
 
-describe("registerUser – input validation", () => {
+describe("registerUser - input validation", () => {
   it("rejects empty email and password", async () => {
     const result = await registerUser("", "");
     expect(result).toEqual({ ok: false, error: "Email and password are required" });
@@ -62,7 +62,7 @@ describe("registerUser – input validation", () => {
   });
 });
 
-describe("registerUser – Supabase error handling", () => {
+describe("registerUser - Supabase error handling", () => {
   it("returns error message from Supabase on failure", async () => {
     (mockAuth.signUp as jest.Mock).mockResolvedValueOnce({
       data: { user: null, session: null },
@@ -92,9 +92,9 @@ describe("registerUser – Supabase error handling", () => {
   });
 });
 
-// ─── authenticateUser ────────────────────────────────────────────────────────
+// authenticateUser
 
-describe("authenticateUser – input validation", () => {
+describe("authenticateUser - input validation", () => {
   it("rejects empty email and password", async () => {
     const result = await authenticateUser("", "");
     expect(result).toEqual({ ok: false, error: "Email and password are required" });
@@ -111,7 +111,7 @@ describe("authenticateUser – input validation", () => {
   });
 });
 
-describe("authenticateUser – Supabase error handling", () => {
+describe("authenticateUser - Supabase error handling", () => {
   it("maps invalid credentials to a friendly message", async () => {
     (mockAuth.signInWithPassword as jest.Mock).mockResolvedValueOnce({
       data: { user: null, session: null },

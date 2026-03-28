@@ -15,39 +15,39 @@
 
 PromptBase stores prompts. Notion organizes them. FlowGPT shares them. None of them remember how they got there.
 
-In real life, prompts evolve. You tweak your "code review prompt" three times, and by the fourth iteration you've forgotten what made version 2 actually work. There is no tool aimed at everyday users that tracks how your prompts change over time — until now.
+In real life, prompts evolve. You tweak your "code review prompt" three times, and by the fourth iteration you've forgotten what made version 2 actually work. There is no tool aimed at everyday users that tracks how your prompts change over time, until now.
 
 closedNote is built on one thesis: **a prompt is not a sticky note. It's a document with a history.**
 
-Beyond versioning, closedNote adds structure: organize into collections, chain into multi-step workflows, refine with AI, and import from any image via OCR — all private by default.
+Beyond versioning, closedNote adds structure: organize into collections, chain into multi-step workflows, refine with AI, and import from any image via OCR, all private by default.
 
 ---
 
-## Version History — Git for Your Prompts
+## Version History, git for your prompts
 
-Every time you save an edit, closedNote snapshots the version. Jump back to any point in time, see exactly what changed line by line, and restore with one click — without overwriting your history.
+Every time you save an edit, closedNote snapshots the version. Jump back to any point in time, see exactly what changed line by line, and restore with one click, without overwriting your history.
 
 ![Version History](./screenshots/versioning01.png)
 
 - Full version timeline on every prompt
-- Visual diff — additions in green, removals in red
+- Visual diff, additions in green, removals in red
 - Restore any version without losing the history chain
-- Versions only created when content actually changes — no noise
+- Versions only created when content actually changes, no noise
 
 ---
 
 ## All Features
 
-- **Version History** — track every draft with a visual diff and one-click restore *(new)*
-- **Instant Search** — command palette (`⌘K`) across your entire library
-- **Collections** — group prompts by topic, project, or use case
-- **AI Refinement** — clean up rough ideas into polished, reusable prompts using your own API key
-- **OCR Import** — upload a screenshot or photo, extract the text, save it as a prompt
-- **Prompt Chains** — link prompts into multi-step workflows where each output feeds the next
-- **One-Click Copy** — paste straight into ChatGPT, Claude, Cursor, or wherever you work
-- **Private by Default** — row-level security ensures your data is never accessible to others
-- **Dark Mode** — full theme support, system-aware
-- **Fully Responsive** — works on mobile without crying
+- **Version History**, track every draft with a visual diff and one-click restore *(new)*
+- **Instant Search**, command palette (`⌘K`) across your entire library
+- **Collections**, group prompts by topic, project, or use case
+- **AI Refinement**, clean up rough ideas into polished, reusable prompts using your own API key
+- **OCR Import**, upload a screenshot or photo, extract the text, save it as a prompt
+- **Prompt Chains**, link prompts into multi-step workflows where each output feeds the next
+- **One-Click Copy**, paste straight into ChatGPT, Claude, Cursor, or wherever you work
+- **Private by Default**, row-level security ensures your data is never accessible to others
+- **Dark Mode**, full theme support, system-aware
+- **Fully Responsive**, works on mobile without crying
 
 ---
 
@@ -107,7 +107,7 @@ I got tired of re-engineering my "perfect ChatGPT prompts" every time I needed a
 
 Meanwhile, prompt engineers were dropping tips on X and Stack Overflow, but nobody had a good place to store, iterate on, and *remember* them.
 
-So I built one — and added version control, because the best prompt you'll ever write is usually the fourth draft of something you thought was broken.
+So I built one, and added version control, because the best prompt you'll ever write is usually the fourth draft of something you thought was broken.
 
 ---
 
@@ -155,7 +155,7 @@ See [open issues](https://github.com/aboderinsamuel/closedNote/issues) for what'
 
 ## Built by
 
-**Samuel Aboderin** — Computer Engineering, UNILAG 🇳🇬
+**Samuel Aboderin**, Computer Engineering, UNILAG 🇳🇬
 
 [![GitHub](https://img.shields.io/badge/GitHub-aboderinsamuel-black?style=flat-square&logo=github)](https://github.com/aboderinsamuel)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-samuelaboderin-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/samuelaboderin)
@@ -164,8 +164,8 @@ See [open issues](https://github.com/aboderinsamuel/closedNote/issues) for what'
 
 ## License
 
-MIT — use it, remix it, improve it.
+MIT, use it, remix it, improve it.
 
 ---
 
-*closedNote — because your prompts deserve better than browser history.*
+*closedNote, because your prompts deserve better than browser history.*
