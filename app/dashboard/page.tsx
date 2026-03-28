@@ -12,9 +12,79 @@ import { PromptCollection } from "@/components/PromptCollection";
 import { usePrompts } from "@/lib/hooks/usePrompts";
 import { useAuth } from "@/components/AuthProvider";
 
+const ONBOARDING_KEY = (userId: string) => `closednote_onboarded_${userId}`;
+
+function WelcomeBanner({ userName, onDismiss }: { userName: string; onDismiss: () => void }) {
+  return (
+    <div className="max-w-xl mx-auto py-16 px-4">
+      <p className="text-xs font-medium tracking-widest text-neutral-400 dark:text-neutral-500 uppercase mb-3">
+        You&apos;re in
+      </p>
+      <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+        Welcome{userName ? `, ${userName}` : ""}.
+      </h1>
+      <p className="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed mb-10">
+        closedNote is where you save, version, and refine your prompts. Here&apos;s how to get started.
+      </p>
+
+      <ol className="space-y-5 mb-10">
+        <li className="flex gap-4">
+          <span className="flex-shrink-0 w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-semibold flex items-center justify-center">
+            1
+          </span>
+          <div>
+            <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Save a prompt</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+              Paste or type any prompt, give it a title, and hit save. Takes 10 seconds.
+            </p>
+          </div>
+        </li>
+        <li className="flex gap-4">
+          <span className="flex-shrink-0 w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-semibold flex items-center justify-center">
+            2
+          </span>
+          <div>
+            <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Edit freely, versions save automatically</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+              Every time you update a prompt, the previous version is kept. Restore any version in one click.
+            </p>
+          </div>
+        </li>
+        <li className="flex gap-4">
+          <span className="flex-shrink-0 w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-semibold flex items-center justify-center">
+            3
+          </span>
+          <div>
+            <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Refine with AI when you need it</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+              Open any prompt and ask AI to improve it. Add your OpenAI key in Settings to unlock GPT-4o.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <div className="flex items-center gap-4">
+        <Link
+          href="/prompts/new"
+          onClick={onDismiss}
+          className="inline-flex items-center px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white font-medium rounded-full transition-colors text-sm"
+        >
+          + Create your first prompt
+        </Link>
+        <button
+          onClick={onDismiss}
+          className="text-sm text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+        >
+          Skip for now
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function DashboardContent() {
   const { prompts: allPrompts, loading, error } = usePrompts();
-  const { loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<{
     query: string;
@@ -23,6 +93,7 @@ function DashboardContent() {
   const [activeCollection, setActiveCollection] = useState<
     string | undefined
   >();
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -35,6 +106,21 @@ function DashboardContent() {
   useEffect(() => {
     setFilters((prev) => ({ ...prev, query: searchQuery }));
   }, [searchQuery]);
+
+  // Show welcome only once per account, on first login with no prompts
+  useEffect(() => {
+    if (!user || authLoading || loading) return;
+    if (allPrompts.length > 0) return;
+    const key = ONBOARDING_KEY(user.id);
+    if (!localStorage.getItem(key)) {
+      setShowWelcome(true);
+    }
+  }, [user, authLoading, loading, allPrompts.length]);
+
+  function dismissWelcome() {
+    if (user) localStorage.setItem(ONBOARDING_KEY(user.id), "1");
+    setShowWelcome(false);
+  }
 
   const filteredPrompts = useMemo(() => {
     return filterPrompts(allPrompts, {
@@ -80,18 +166,25 @@ function DashboardContent() {
           ))}
         </div>
       ) : allPrompts.length === 0 ? (
-        <div className="max-w-sm mx-auto text-center py-20">
-          <p className="text-neutral-900 dark:text-neutral-100 font-medium mb-2">No prompts yet</p>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">
-            Create your first one and it&apos;ll show up here.
-          </p>
-          <Link
-            href="/prompts/new"
-            className="inline-flex items-center px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white font-medium rounded-full transition-colors text-sm"
-          >
-            + New prompt
-          </Link>
-        </div>
+        showWelcome ? (
+          <WelcomeBanner
+            userName={user?.displayName?.split(" ")[0] ?? ""}
+            onDismiss={dismissWelcome}
+          />
+        ) : (
+          <div className="max-w-sm mx-auto text-center py-20">
+            <p className="text-neutral-900 dark:text-neutral-100 font-medium mb-2">No prompts yet</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">
+              Create your first one and it&apos;ll show up here.
+            </p>
+            <Link
+              href="/prompts/new"
+              className="inline-flex items-center px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white font-medium rounded-full transition-colors text-sm"
+            >
+              + New prompt
+            </Link>
+          </div>
+        )
       ) : (
         <div className="max-w-5xl mx-auto w-full">
           <div>
