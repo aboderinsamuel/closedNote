@@ -13,6 +13,8 @@ export default function AuthCallbackPage() {
     const code = params.get("code");
     const errorParam = params.get("error");
     const errorDescription = params.get("error_description");
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = hashParams.get("access_token");
 
     if (errorParam) {
       setError(errorDescription || errorParam);
@@ -20,22 +22,43 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    if (!code) {
-      router.push("/dashboard");
+    if (code) {
+      // PKCE flow: exchange code for session
+      supabase.auth
+        .exchangeCodeForSession(code)
+        .then(({ error: exchangeError }) => {
+          if (exchangeError) {
+            console.error("[auth/callback] Exchange error:", exchangeError);
+            setError(exchangeError.message);
+            setTimeout(() => router.push("/login"), 3000);
+          } else {
+            router.push("/dashboard");
+          }
+        });
       return;
     }
 
-    supabase.auth
-      .exchangeCodeForSession(code)
-      .then(({ error: exchangeError }) => {
-        if (exchangeError) {
-          console.error("[auth/callback] Exchange error:", exchangeError);
-          setError(exchangeError.message);
-          setTimeout(() => router.push("/login"), 3000);
-        } else {
+    if (accessToken) {
+      // Implicit flow: supabase client auto-detects the hash and fires SIGNED_IN.
+      // Wait for the session to be established before navigating.
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "SIGNED_IN") {
+          subscription.unsubscribe();
           router.push("/dashboard");
         }
       });
+      // Fallback in case onAuthStateChange doesn't fire (session already set)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          subscription.unsubscribe();
+          router.push("/dashboard");
+        }
+      });
+      return;
+    }
+
+    // No code or token — just go to dashboard (handles direct navigation to this route)
+    router.push("/dashboard");
   }, [router]);
 
   if (error) {
