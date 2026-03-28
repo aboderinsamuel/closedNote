@@ -7,6 +7,8 @@ import {
   registerUser,
   authenticateUser,
   onAuthStateChange,
+  resetPasswordForEmail,
+  signInWithOAuth,
 } from "@/lib/auth";
 
 interface AuthContextValue {
@@ -25,6 +27,8 @@ interface AuthContextValue {
     | { ok: false; error: string }
   >;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+  loginWithOAuth: (provider: "google" | "github") => Promise<{ ok: true } | { ok: false; error: string }>;
 }
 
 const USER_CACHE_KEY = "closednote_user_cache";
@@ -49,6 +53,8 @@ function writeUserCache(user: User | null) {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+const origin = typeof window !== "undefined" ? window.location.origin : "";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -110,6 +116,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return res;
   };
 
+  const resetPassword = async (email: string) =>
+    resetPasswordForEmail(email, `${origin}/auth/reset-password`);
+
+  const loginWithOAuth = async (provider: "google" | "github") =>
+    signInWithOAuth(provider, `${origin}/auth/callback`);
+
   const logout = async () => {
     setUserAndCache(null);
     try {
@@ -119,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resetPassword, loginWithOAuth }}>
       {children}
     </AuthContext.Provider>
   );

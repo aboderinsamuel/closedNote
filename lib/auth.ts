@@ -226,7 +226,37 @@ export async function deleteAccount(): Promise<
 }
 
 
- // Listen to auth state changes
+export async function resetPasswordForEmail(
+  email: string,
+  redirectTo: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    if (!email) return { ok: false, error: "Email is required" };
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
+export async function signInWithOAuth(
+  provider: "google" | "github",
+  redirectTo: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo },
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
+// Listen to auth state changes
 
 export function onAuthStateChange(
   callback: (user: User | null) => void
