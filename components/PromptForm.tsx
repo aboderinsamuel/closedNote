@@ -17,7 +17,7 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
   const { prompts, addOptimistic, refresh } = usePrompts();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [model, setModel] = useState<PromptModel>("");
+  const [model, setModel] = useState<PromptModel>("gpt-4o");
   const [collection, setCollection] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
