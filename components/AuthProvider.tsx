@@ -77,11 +77,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
     }
 
-    // onAuthStateChange is the single source of truth for auth state.
-    // It fires INITIAL_SESSION immediately on registration, so no separate
-    // initializeAuth() call is needed. Having two concurrent getUser() calls
-    // was causing token refresh races that invalidated sessions via Supabase's
-    // refresh token reuse detection.
+    // onAuthStateChange fires INITIAL_SESSION on mount, so no separate
+    // getUser() call is needed - concurrent calls caused refresh-token reuse
+    // errors that invalidated sessions.
     const unsubscribe = onAuthStateChange((updatedUser) => {
       if (mounted) {
         setUserAndCache(updatedUser);

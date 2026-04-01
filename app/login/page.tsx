@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
@@ -38,7 +38,7 @@ const GitHubIcon = () => (
 type Mode = "login" | "reset";
 
 export default function LoginPage() {
-  const { login, resetPassword, loginWithOAuth } = useAuth();
+  const { user, loading: authLoading, login, resetPassword, loginWithOAuth } = useAuth();
   const router = useRouter();
   const { prompts } = usePrompts();
 
@@ -50,6 +50,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
   const [resetSent, setResetSent] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) router.replace("/dashboard");
+  }, [user, authLoading, router]);
+
+  if (authLoading || user) return null;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,75 +108,116 @@ export default function LoginPage() {
   };
 
   const inputClass =
-    "w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 transition-shadow";
+    "w-full px-3.5 py-2.5 rounded-lg text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 transition-shadow"
+    + " bg-neutral-50 dark:bg-neutral-800"
+    + " border border-neutral-200 dark:border-neutral-700"
+    + " text-neutral-900 dark:text-neutral-100"
+    + " focus:ring-[var(--cn-accent)]/40 focus:border-[var(--cn-accent)]";
 
   return (
-    <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
+    <Layout header={<Header />} sidebar={null}>
       <div className="flex items-center justify-center min-h-[calc(100vh-7rem)] px-4 py-8">
-        <div className="w-full max-w-sm">
+        <div className="animate-fade-up w-full max-w-sm" style={{ animationDelay: "0ms" }}>
+
+          {/* Accent bar */}
+          <div className="flex items-center justify-center mb-8">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{
+                width: 32, height: 3, borderRadius: 2,
+                background: "var(--cn-accent)", display: "inline-block",
+              }} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--cn-accent)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                closedNote
+              </span>
+              <span style={{
+                width: 32, height: 3, borderRadius: 2,
+                background: "var(--cn-accent)", display: "inline-block",
+              }} />
+            </div>
+          </div>
 
           {/* Card */}
-          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-sm">
-
+          <div
+            className="rounded-2xl p-8"
+            style={{
+              background: "var(--cn-bg-card)",
+              border: "1px solid var(--cn-border)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+            }}
+          >
             {mode === "login" ? (
               <>
-                <div className="mb-6">
-                  <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">Welcome back</h1>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Sign in to your closedNote account</p>
+                <div className="mb-6 animate-fade-up" style={{ animationDelay: "60ms" }}>
+                  <h1 style={{ fontSize: 22, fontWeight: 900, color: "var(--cn-text)", letterSpacing: "-0.025em", marginBottom: 6 }}>
+                    Welcome back
+                  </h1>
+                  <p style={{ fontSize: 14, color: "var(--cn-muted)" }}>
+                    Sign in to your closedNote account
+                  </p>
                 </div>
 
                 {error && (
-                  <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+                  <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400 animate-fade-in">
                     {error}
                   </div>
                 )}
 
                 {/* OAuth */}
-                <div className="space-y-2 mb-5">
+                <div className="space-y-2 mb-5 animate-fade-up" style={{ animationDelay: "100ms" }}>
                   <button
                     type="button"
                     onClick={() => handleOAuth("google")}
                     disabled={!!oauthLoading}
-                    className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      border: "1px solid var(--cn-border)",
+                      color: "var(--cn-text2)",
+                      background: "transparent",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s1)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                   >
                     {oauthLoading === "google" ? (
                       <span className="w-4 h-4 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
-                    ) : (
-                      <GoogleIcon />
-                    )}
+                    ) : <GoogleIcon />}
                     Continue with Google
                   </button>
                   <button
                     type="button"
                     onClick={() => handleOAuth("github")}
                     disabled={!!oauthLoading}
-                    className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      border: "1px solid var(--cn-border)",
+                      color: "var(--cn-text2)",
+                      background: "transparent",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s1)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                   >
                     {oauthLoading === "github" ? (
                       <span className="w-4 h-4 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
-                    ) : (
-                      <GitHubIcon />
-                    )}
+                    ) : <GitHubIcon />}
                     Continue with GitHub
                   </button>
                 </div>
 
                 {/* Divider */}
-                <div className="relative mb-5">
+                <div className="relative mb-5 animate-fade-up" style={{ animationDelay: "140ms" }}>
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-neutral-200 dark:border-neutral-800" />
+                    <div style={{ width: "100%", borderTop: "1px solid var(--cn-border)" }} />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white dark:bg-neutral-900 px-3 text-xs text-neutral-400 dark:text-neutral-500">
+                    <span style={{ background: "var(--cn-bg-card)", padding: "0 12px", fontSize: 12, color: "var(--cn-muted)" }}>
                       or continue with email
                     </span>
                   </div>
                 </div>
 
                 {/* Email/password form */}
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-4 animate-fade-up" style={{ animationDelay: "180ms" }}>
                   <div>
-                    <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--cn-text2)", marginBottom: 6 }}>
                       Email
                     </label>
                     <input
@@ -185,13 +233,15 @@ export default function LoginPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "var(--cn-text2)" }}>
                         Password
                       </label>
                       <button
                         type="button"
                         onClick={() => { setMode("reset"); setError(null); }}
-                        className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                        style={{ fontSize: 12, color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer", transition: "color 0.15s" }}
+                        onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+                        onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
                       >
                         Forgot password?
                       </button>
@@ -209,7 +259,8 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                        style={{ color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer" }}
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         tabIndex={-1}
                       >
@@ -221,63 +272,73 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-2.5 text-sm font-semibold rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      background: "var(--cn-btn-bg)",
+                      color: "var(--cn-btn-tx)",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                   >
-                    {loading ? "Signing in..." : "Sign in"}
+                    {loading ? "Signing in…" : "Sign in"}
                   </button>
                 </form>
               </>
             ) : resetSent ? (
-              /* Reset sent confirmation */
-              <div className="text-center py-2">
-                <div className="w-12 h-12 mx-auto mb-4 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-2 animate-fade-up" style={{ animationDelay: "0ms" }}>
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center"
+                  style={{ background: "rgba(123,216,143,0.15)" }}>
+                  <svg className="w-6 h-6" fill="none" stroke="#7BD88F" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
                   </svg>
                 </div>
-                <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Check your inbox</h2>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">
-                  We sent a reset link to
-                </p>
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-5">{email}</p>
-                <p className="text-xs text-neutral-400 dark:text-neutral-500 mb-5">
+                <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--cn-text)", marginBottom: 8 }}>Check your inbox</h2>
+                <p style={{ fontSize: 14, color: "var(--cn-muted)", marginBottom: 4 }}>We sent a reset link to</p>
+                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--cn-text)", marginBottom: 20 }}>{email}</p>
+                <p style={{ fontSize: 12, color: "var(--cn-dim)", marginBottom: 20 }}>
                   Didn&apos;t get it? Check your spam folder or wait a minute and try again.
                 </p>
                 <button
                   onClick={() => { setMode("login"); setResetSent(false); }}
-                  className="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                  style={{ fontSize: 14, color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer", transition: "color 0.15s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
                 >
                   Back to sign in
                 </button>
               </div>
             ) : (
-              /* Reset password form */
               <>
                 <button
                   onClick={() => { setMode("login"); setError(null); }}
-                  className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors mb-5"
+                  className="flex items-center gap-1.5 mb-5 transition-colors"
+                  style={{ fontSize: 12, color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Back
                 </button>
-                <div className="mb-6">
-                  <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">Reset password</h1>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                <div className="mb-6 animate-fade-up" style={{ animationDelay: "60ms" }}>
+                  <h1 style={{ fontSize: 22, fontWeight: 900, color: "var(--cn-text)", letterSpacing: "-0.025em", marginBottom: 6 }}>
+                    Reset password
+                  </h1>
+                  <p style={{ fontSize: 14, color: "var(--cn-muted)" }}>
                     Enter your email and we&apos;ll send a reset link.
                   </p>
                 </div>
 
                 {error && (
-                  <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+                  <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400 animate-fade-in">
                     {error}
                   </div>
                 )}
 
-                <form onSubmit={handleReset} className="space-y-4">
+                <form onSubmit={handleReset} className="space-y-4 animate-fade-up" style={{ animationDelay: "100ms" }}>
                   <div>
-                    <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--cn-text2)", marginBottom: 6 }}>
                       Email
                     </label>
                     <input
@@ -293,9 +354,12 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-2.5 text-sm font-semibold rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)" }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                   >
-                    {loading ? "Sending..." : "Send reset link"}
+                    {loading ? "Sending…" : "Send reset link"}
                   </button>
                 </form>
               </>
@@ -304,9 +368,14 @@ export default function LoginPage() {
 
           {/* Footer */}
           {mode === "login" && (
-            <p className="text-center text-sm text-neutral-500 dark:text-neutral-400 mt-5">
+            <p className="text-center mt-5 animate-fade-up" style={{ fontSize: 14, color: "var(--cn-muted)", animationDelay: "220ms" }}>
               No account?{" "}
-              <Link href="/signup" className="text-neutral-900 dark:text-neutral-100 font-medium hover:underline">
+              <Link
+                href="/signup"
+                style={{ color: "var(--cn-accent)", fontWeight: 600, textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
+                onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}
+              >
                 Sign up free
               </Link>
             </p>

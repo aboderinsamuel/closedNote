@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Prompt, PromptVersion } from "@/lib/types";
@@ -31,6 +32,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const [title, setTitle] = useState(prompt.title);
   const [content, setContent] = useState(prompt.content);
   const [collection, setCollection] = useState(prompt.collection);
+  const [model, setModel] = useState(prompt.model);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -65,6 +67,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         setTitle(localPrompt.title);
         setContent(localPrompt.content);
         setCollection(localPrompt.collection);
+        setModel(localPrompt.model);
         setEditing(false);
       }
     };
@@ -99,9 +102,10 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       const newTitle = title.trim() || localPrompt.title;
       const newContent = content.trim() || localPrompt.content;
       const newCollection = collection.trim() || "uncategorized";
-      const updated = { ...localPrompt, title: newTitle, content: newContent, collection: newCollection, updatedAt: now };
+      const newModel = model.trim() || localPrompt.model;
+      const updated = { ...localPrompt, title: newTitle, content: newContent, collection: newCollection, model: newModel, updatedAt: now };
 
-      const contentChanged = newTitle !== localPrompt.title || newContent !== localPrompt.content || newCollection !== localPrompt.collection;
+      const contentChanged = newTitle !== localPrompt.title || newContent !== localPrompt.content || newCollection !== localPrompt.collection || newModel !== localPrompt.model;
       await savePrompt(updated, !contentChanged);
 
       setLocalPrompt(updated);
@@ -148,54 +152,73 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     return `${Math.floor(days / 365)}y ago`;
   }
 
+  const badgeStyle: React.CSSProperties = {
+    padding: "3px 10px",
+    background: "var(--cn-bg-s2)", border: "1px solid var(--cn-border-s)",
+    color: "var(--cn-muted)", fontSize: 11, fontWeight: 600, borderRadius: 6,
+  };
+
   return (
-    <div className="space-y-4 max-w-3xl mx-auto w-full">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
       {/* Nav row */}
-      <div className="flex items-center gap-3">
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--cn-muted)", textDecoration: "none", transition: "color 0.15s" }}
+          onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+          onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style={{ width: 16, height: 16 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           Back
         </Link>
-        <span className="text-neutral-200 dark:text-neutral-700">/</span>
-        <span className="text-sm text-neutral-400 dark:text-neutral-500 truncate max-w-xs">
+        <span style={{ color: "var(--cn-border)" }}>/</span>
+        <span style={{ fontSize: 13, color: "var(--cn-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 280 }}>
           {localPrompt.title}
         </span>
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
+        <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", fontSize: 13, color: "#ef4444" }}>
           {error}
         </div>
       )}
 
       {/* Main document card */}
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg shadow-neutral-300/50 dark:shadow-black/50 ring-1 ring-neutral-900/5 dark:ring-white/5 overflow-hidden">
+      <div style={{
+        background: "var(--cn-bg-card)",
+        border: "1px solid var(--cn-border)",
+        borderRadius: 16,
+        boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+        overflow: "hidden",
+      }}>
 
         {/* Header: title + actions */}
-        <div className="flex items-start gap-4 px-6 sm:px-8 pt-7 pb-4">
-          <div className="flex-1 min-w-0">
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 16, padding: "28px 28px 16px" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             {editing ? (
               <input
                 ref={titleRef}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Untitled prompt"
-                className="w-full text-2xl sm:text-3xl font-semibold bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-300 dark:placeholder-neutral-700 focus:outline-none border-b border-neutral-200 dark:border-neutral-700 pb-1"
+                style={{
+                  width: "100%", fontSize: 24, fontWeight: 700,
+                  background: "transparent", color: "var(--cn-text)",
+                  border: "none", borderBottom: "1px solid var(--cn-border)",
+                  outline: "none", paddingBottom: 4, fontFamily: "inherit",
+                  boxSizing: "border-box",
+                }}
               />
             ) : (
-              <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 dark:text-neutral-100 leading-tight">
+              <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--cn-text)", letterSpacing: "-0.025em", lineHeight: 1.3 }}>
                 {localPrompt.title}
               </h1>
             )}
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-2 shrink-0 pt-1">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, paddingTop: 4 }}>
             {editing ? (
               <>
                 <button
@@ -203,16 +226,19 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                     setTitle(localPrompt.title);
                     setContent(localPrompt.content);
                     setCollection(localPrompt.collection);
+                    setModel(localPrompt.model);
                     setEditing(false);
                   }}
-                  className="px-3.5 py-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+                  style={{ padding: "6px 14px", fontSize: 12, fontWeight: 600, background: "var(--cn-bg-s2)", color: "var(--cn-text2)", border: "1px solid var(--cn-border)", borderRadius: 8, cursor: "pointer", transition: "background 0.12s" }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s3)")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "var(--cn-bg-s2)")}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-4 py-1.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  style={{ padding: "6px 16px", fontSize: 12, fontWeight: 600, background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)", border: "none", borderRadius: 8, cursor: "pointer", opacity: saving ? 0.6 : 1, transition: "opacity 0.15s" }}
                 >
                   {saving ? "Saving..." : "Save"}
                 </button>
@@ -221,13 +247,15 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
               <>
                 <button
                   onClick={handleCopy}
-                  className="px-3.5 py-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+                  style={{ padding: "6px 14px", fontSize: 12, fontWeight: 600, background: copied ? "rgba(123,216,143,0.12)" : "var(--cn-bg-s2)", color: copied ? "#7BD88F" : "var(--cn-text2)", border: `1px solid ${copied ? "rgba(123,216,143,0.3)" : "var(--cn-border)"}`, borderRadius: 8, cursor: "pointer", transition: "all 0.15s" }}
                 >
                   {copied ? "Copied!" : "Copy"}
                 </button>
                 <button
                   onClick={() => setEditing(true)}
-                  className="px-4 py-1.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors"
+                  style={{ padding: "6px 16px", fontSize: 12, fontWeight: 600, background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)", border: "none", borderRadius: 8, cursor: "pointer", transition: "opacity 0.15s" }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                 >
                   Edit
                 </button>
@@ -237,40 +265,64 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         </div>
 
         {/* Metadata row */}
-        <div className="flex flex-wrap items-center gap-2 px-6 sm:px-8 pb-5">
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, padding: "0 28px 20px" }}>
           {editing ? (
             <input
               type="text"
               value={collection}
               onChange={(e) => setCollection(e.target.value)}
               placeholder="collection"
-              className="px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-md text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-300 dark:focus:ring-neutral-600 w-32"
+              style={{ ...badgeStyle, background: "var(--cn-bg-s2)", color: "var(--cn-text)", border: "1px solid var(--cn-border)", outline: "none", width: 120 }}
             />
           ) : (
-            <span className="px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md text-xs font-medium capitalize">
-              {localPrompt.collection}
-            </span>
+            <span style={{ ...badgeStyle, textTransform: "capitalize" }}>{localPrompt.collection}</span>
           )}
-          <span className="px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-500 rounded-md text-xs">
-            {MODEL_LABELS[localPrompt.model] ?? localPrompt.model}
-          </span>
-          <span className="text-neutral-300 dark:text-neutral-700 text-xs">·</span>
-          <span className="text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
+          {editing ? (
+            <>
+              <input
+                type="text"
+                list="detail-model-options"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="model"
+                autoComplete="off"
+                style={{ ...badgeStyle, background: "var(--cn-bg-s2)", color: "var(--cn-text)", border: "1px solid var(--cn-border)", outline: "none", width: 180 }}
+              />
+              <datalist id="detail-model-options">
+                <option value="claude-opus-4-6" />
+                <option value="claude-sonnet-4-6" />
+                <option value="claude-haiku-4-5" />
+                <option value="claude-3-5-sonnet-20241022" />
+                <option value="claude-3-5-haiku-20241022" />
+                <option value="gpt-4o" />
+                <option value="gpt-4o-mini" />
+                <option value="gpt-4-turbo" />
+                <option value="o1" />
+                <option value="o3-mini" />
+                <option value="gemini-2.0-flash" />
+                <option value="gemini-2.5-pro" />
+                <option value="mistral-large" />
+                <option value="deepseek-r1" />
+                <option value="llama-3.3-70b" />
+              </datalist>
+            </>
+          ) : (
+            <span style={badgeStyle}>{localPrompt.model || "-"}</span>
+          )}
+          <span style={{ color: "var(--cn-border)", fontSize: 11 }}>·</span>
+          <span style={{ fontSize: 11, color: "var(--cn-dim)", fontVariantNumeric: "tabular-nums" }}>
             updated {relativeDate(localPrompt.updatedAt)}
           </span>
         </div>
 
         {/* Writing surface */}
-        <div className="mx-4 sm:mx-6 mb-6 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+        <div style={{ margin: "0 20px 20px", borderRadius: 10, background: "var(--cn-bg-s1)", border: "1px solid var(--cn-border)", overflow: "hidden" }}>
           {editing ? (
             <>
               <textarea
                 ref={textareaRef}
                 value={content}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  resizeTextarea();
-                }}
+                onChange={(e) => { setContent(e.target.value); resizeTextarea(); }}
                 onPaste={(e) => {
                   setTimeout(resizeTextarea, 0);
                   const pasted = e.clipboardData.getData("text");
@@ -282,46 +334,50 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                     const end = el.selectionEnd;
                     const newVal = content.slice(0, start) + cleaned + content.slice(end);
                     setContent(newVal);
-                    setTimeout(() => {
-                      el.selectionStart = el.selectionEnd = start + cleaned.length;
-                      resizeTextarea();
-                    }, 0);
+                    setTimeout(() => { el.selectionStart = el.selectionEnd = start + cleaned.length; resizeTextarea(); }, 0);
                   }
                 }}
                 placeholder="Enter your prompt..."
-                className="w-full px-5 py-4 bg-transparent text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 font-mono text-sm leading-relaxed focus:outline-none resize-none overflow-hidden min-h-[200px]"
+                style={{
+                  width: "100%", padding: "16px 20px",
+                  background: "transparent", color: "var(--cn-text)",
+                  fontFamily: "inherit",
+                  fontSize: 15, lineHeight: 1.75,
+                  border: "none", outline: "none", resize: "none", overflow: "hidden",
+                  minHeight: 200, boxSizing: "border-box",
+                }}
               />
-              <div className="flex items-center justify-between px-5 py-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/40">
-                <span className="text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
-                  {content.length} chars
-                </span>
-                <span className="text-xs text-neutral-400 dark:text-neutral-500">
-                  Ctrl/Cmd+S to save, Esc to cancel
-                </span>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 20px", borderTop: "1px solid var(--cn-border-s)", background: "var(--cn-bg-s2)" }}>
+                <span style={{ fontSize: 11, color: "var(--cn-dim)", fontVariantNumeric: "tabular-nums" }}>{content.length} chars</span>
+                <span style={{ fontSize: 11, color: "var(--cn-dim)" }}>Ctrl/Cmd+S to save · Esc to cancel</span>
               </div>
             </>
           ) : (
-            <pre className="px-5 py-4 text-sm font-mono text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap overflow-x-auto leading-relaxed">
-              <code>{localPrompt.content}</code>
+            <pre style={{ padding: "16px 20px", fontSize: 15, fontFamily: "inherit", color: "var(--cn-text)", whiteSpace: "pre-wrap", overflowX: "auto", lineHeight: 1.75, margin: 0 }}>
+              {localPrompt.content}
             </pre>
           )}
         </div>
 
-        {/* Footer actions (view mode only) */}
+        {/* Footer */}
         {!editing && (
-          <div className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-950/30 px-6 sm:px-8 py-3 flex items-center justify-between">
+          <div style={{ borderTop: "1px solid var(--cn-border-s)", background: "var(--cn-bg-s1)", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <button
               onClick={() => setShowHistory((v) => !v)}
-              className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer", transition: "color 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text2)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg style={{ width: 13, height: 13 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {showHistory ? "Hide history" : "Version history"}
             </button>
             <button
               onClick={handleDelete}
-              className="text-sm text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              style={{ fontSize: 13, color: "#ef4444", background: "none", border: "none", cursor: "pointer", transition: "opacity 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
+              onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
             >
               Delete
             </button>
@@ -331,9 +387,9 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
 
       {/* Version history panel */}
       {showHistory && (
-        <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg shadow-neutral-300/50 dark:shadow-black/50 ring-1 ring-neutral-900/5 dark:ring-white/5 overflow-hidden">
-          <div className="px-6 sm:px-8 py-5">
-            <h2 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-4">
+        <div style={{ background: "var(--cn-bg-card)", border: "1px solid var(--cn-border)", borderRadius: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+          <div style={{ padding: "20px 28px" }}>
+            <h2 style={{ fontSize: 13, fontWeight: 700, color: "var(--cn-text2)", marginBottom: 16 }}>
               Version history
             </h2>
             <VersionHistory

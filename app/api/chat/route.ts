@@ -76,7 +76,6 @@ async function callOpenAI(
 
 export async function POST(req: Request) {
   try {
-    // Verify the caller is an authenticated user before doing any work
     const user = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json(

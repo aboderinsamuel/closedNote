@@ -1,15 +1,12 @@
 import { User } from "./types";
 import { supabase } from "./supabase";
 
-// Register a new user with Supabase Auth
-
 export async function registerUser(
   email: string,
   password: string,
   displayName?: string
 ): Promise<{ ok: true; needsEmailConfirmation?: boolean } | { ok: false; error: string }> {
   try {
-    // Validate inputs
     if (!email || !password) {
       return { ok: false, error: "Email and password are required" };
     }
@@ -17,8 +14,6 @@ export async function registerUser(
     if (password.length < 6) {
       return { ok: false, error: "Password must be at least 6 characters" };
     }
-
-    console.log("[auth] Attempting signup for:", email);
 
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
@@ -31,13 +26,9 @@ export async function registerUser(
     });
 
     if (error) {
-      console.error("[auth] Signup error:", error);
-      
-      // Check if user already exists
       if (error.message.includes("already registered") || error.message.includes("already been registered")) {
         return { ok: false, error: "This email is already registered. Please login instead." };
       }
-      
       return { ok: false, error: error.message || "Failed to sign up" };
     }
 
@@ -45,36 +36,25 @@ export async function registerUser(
       return { ok: false, error: "Failed to create user" };
     }
 
-    console.log("[auth] Signup successful:", data.user.id);
-    console.log("[auth] Session exists:", !!data.session);
-    
-    // Check if user already exists (Supabase might return success for existing users)
-    // If identities array is empty, it means email confirmation is needed
+    // Empty identities means the user needs to confirm their email before the session is granted
     const needsEmailConfirmation = !data.session || (data.user.identities && data.user.identities.length === 0);
-    
-    console.log("[auth] Email confirmation required:", needsEmailConfirmation);
-    
+
     return { ok: true, needsEmailConfirmation };
   } catch (err) {
-    console.error("[auth] Registration error:", err);
+    console.error("[auth] registerUser:", err);
     const errorMessage = err instanceof Error ? err.message : "Network error - please check your connection";
     return { ok: false, error: errorMessage };
   }
 }
-
- //Authenticate user with email and password
 
 export async function authenticateUser(
   email: string,
   password: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    // Validate inputs
     if (!email || !password) {
       return { ok: false, error: "Email and password are required" };
     }
-
-    console.log("[auth] Attempting login for:", email);
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -82,9 +62,6 @@ export async function authenticateUser(
     });
 
     if (error) {
-      console.error("[auth] Login error:", error);
-      
-      // Provide more helpful error messages
       if (error.message.includes("Invalid login credentials")) {
         return { ok: false, error: "Invalid email or password" };
       }
@@ -94,7 +71,6 @@ export async function authenticateUser(
       if (error.message.includes("fetch")) {
         return { ok: false, error: "Network error - please check your internet connection" };
       }
-      
       return { ok: false, error: error.message };
     }
 
@@ -102,17 +78,13 @@ export async function authenticateUser(
       return { ok: false, error: "Invalid credentials" };
     }
 
-    console.log("[auth] Login successful:", data.user.id);
     return { ok: true };
   } catch (err) {
-    console.error("[auth] Login error:", err);
+    console.error("[auth] authenticateUser:", err);
     const errorMessage = err instanceof Error ? err.message : "Network error - please check your connection";
     return { ok: false, error: errorMessage };
   }
 }
-
-
- // Get the current authenticated user
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
@@ -122,7 +94,6 @@ export async function getCurrentUser(): Promise<User | null> {
 
     if (!authUser) return null;
 
-    // Fetch user profile from database
     const { data: profileData, error } = await supabase
       .from("users")
       .select("*")
@@ -132,7 +103,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
     if (error || !profile) {
       // Profile row missing - build user from auth metadata so login still works
-      console.warn("[auth] User profile not found, using auth metadata fallback");
+      console.warn("[auth] profile missing, falling back to auth metadata");
       return {
         id: authUser.id,
         email: authUser.email || "",
@@ -153,14 +124,11 @@ export async function getCurrentUser(): Promise<User | null> {
       updatedAt: profile.updated_at,
     };
   } catch (err) {
-    console.error("[auth] Failed to get current user:", err);
+    console.error("[auth] getCurrentUser:", err);
     return null;
   }
 }
 
-
- //Get the current session
- 
 export async function getSession() {
   try {
     const {
@@ -168,34 +136,20 @@ export async function getSession() {
     } = await supabase.auth.getSession();
     return session;
   } catch (err) {
-    console.error("[auth] Failed to get session:", err);
+    console.error("[auth] getSession:", err);
     return null;
   }
 }
 
-
- // Logout the current user
- 
 export async function logoutUser(): Promise<void> {
   try {
-    console.log("[auth] Logging out user...");
-    
-    // Sign out from Supabase
     const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error("[auth] Logout error:", error);
-    }
-    
-    console.log("[auth] Logout successful");
+    if (error) console.error("[auth] signOut:", error);
   } catch (err) {
-    console.error("[auth] Logout error:", err);
+    console.error("[auth] logoutUser:", err);
   }
 }
 
-
- // Delete the current user's account and all associated data
- 
 export async function deleteAccount(): Promise<
   { ok: true } | { ok: false; error: string }
 > {
@@ -208,23 +162,21 @@ export async function deleteAccount(): Promise<
       return { ok: false, error: "No user logged in" };
     }
 
-    // Delete user from Supabase Auth (RLS + CASCADE will handle prompts/tags/user row)
+    // RLS + CASCADE on the RPC handles prompt/tag/user-row cleanup
     const { error } = await supabase.rpc("delete_user");
 
     if (error) {
-      console.error("[auth] Account deletion error:", error);
+      console.error("[auth] deleteAccount:", error);
       return { ok: false, error: error.message };
     }
 
-    // Sign out after deletion
     await supabase.auth.signOut();
     return { ok: true };
   } catch (err) {
-    console.error("[auth] Account deletion failed:", err);
+    console.error("[auth] deleteAccount:", err);
     return { ok: false, error: "Failed to delete account" };
   }
 }
-
 
 export async function resetPasswordForEmail(
   email: string,
@@ -256,26 +208,21 @@ export async function signInWithOAuth(
   }
 }
 
-// Listen to auth state changes
-
 export function onAuthStateChange(
   callback: (user: User | null) => void
 ): () => void {
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((event, session) => {
-    console.log("[auth] Auth state change event:", event, "Session exists:", !!session);
-
     if (!session?.user) {
       callback(null);
       return;
     }
 
     // Build user directly from the session, no extra network calls.
-    // All needed data (id, email, display_name, timestamps) is already present
-    // in the session object. Doing an async DB fetch here caused timing bugs:
-    // multiple in-flight fetches on rapid page loads led to stale callbacks
-    // calling setLoading(false) out of order and leaving the app stuck.
+    // All needed data is already in the session object. Doing an async DB fetch
+    // here caused timing bugs: multiple in-flight fetches on rapid page loads led
+    // to stale callbacks calling setLoading(false) out of order.
     const authUser = session.user;
     callback({
       id: authUser.id,

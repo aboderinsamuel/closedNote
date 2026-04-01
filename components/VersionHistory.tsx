@@ -72,77 +72,88 @@ export function VersionHistory({
 
   if (loading) {
     return (
-      <div className="text-sm text-neutral-500 dark:text-neutral-400 py-4">
+      <p style={{ fontSize: 13, color: "var(--cn-muted)", padding: "16px 0" }}>
         Loading history...
-      </div>
+      </p>
     );
   }
 
   if (versions.length === 0) {
     return (
-      <div className="text-sm text-neutral-500 dark:text-neutral-400 py-4">
+      <p style={{ fontSize: 13, color: "var(--cn-muted)", padding: "16px 0" }}>
         No versions yet. Save an edit to start tracking history.
-      </div>
+      </p>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <style>{`
-        .diff-ins { background: #bbf7d0; color: #14532d; border-radius: 2px; padding: 0 2px; text-decoration: none; }
-        .diff-del { background: #fecaca; color: #7f1d1d; border-radius: 2px; padding: 0 2px; text-decoration: line-through; }
-        .dark .diff-ins { background: #166534; color: #bbf7d0; }
-        .dark .diff-del { background: #7f1d1d; color: #fecaca; }
+        .diff-ins { background: rgba(123,216,143,0.2); color: #7BD88F; border-radius: 2px; padding: 0 2px; text-decoration: none; }
+        .diff-del { background: rgba(252,97,141,0.15); color: #FC618D; border-radius: 2px; padding: 0 2px; text-decoration: line-through; }
       `}</style>
 
-      <div className="flex gap-4">
+      <div style={{ display: "flex", gap: 16 }}>
         {/* Timeline */}
-        <div className="w-40 shrink-0 space-y-1">
+        <div style={{ width: 140, flexShrink: 0, display: "flex", flexDirection: "column", gap: 4 }}>
           {versions.map((v) => (
             <button
               key={v.id}
               onClick={() => handleSelectVersion(v)}
-              className={`w-full text-left px-3 py-2 rounded-md text-xs transition-colors ${
-                selectedVersion?.id === v.id
-                  ? "bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900"
-                  : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-              }`}
+              style={{
+                width: "100%", textAlign: "left",
+                padding: "8px 12px", borderRadius: 8, border: "none",
+                cursor: "pointer", transition: "background 0.12s",
+                background: selectedVersion?.id === v.id ? "var(--cn-btn-bg)" : "var(--cn-bg-s2)",
+                color: selectedVersion?.id === v.id ? "var(--cn-btn-tx)" : "var(--cn-text2)",
+              }}
             >
-              <div className="font-semibold">v{v.versionNumber}</div>
-              <div className="text-neutral-400 dark:text-neutral-500 mt-0.5">
-                {new Date(v.createdAt).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
+              <div style={{ fontSize: 12, fontWeight: 700 }}>v{v.versionNumber}</div>
+              <div style={{ fontSize: 11, color: selectedVersion?.id === v.id ? "var(--cn-btn-tx)" : "var(--cn-dim)", marginTop: 2, opacity: 0.75 }}>
+                {new Date(v.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
               </div>
             </button>
           ))}
         </div>
 
-        {/* Diff Panel */}
-        <div className="flex-1 min-w-0">
+        {/* Diff panel */}
+        <div style={{ flex: 1, minWidth: 0 }}>
           {selectedVersion ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 12, color: "var(--cn-muted)" }}>
                   v{selectedVersion.versionNumber} vs current
                 </span>
                 <button
                   onClick={() => onRestore(selectedVersion)}
-                  className="px-3 py-1 text-xs bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-md hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
+                  style={{
+                    padding: "5px 12px", fontSize: 11, fontWeight: 600,
+                    background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)",
+                    border: "none", borderRadius: 6, cursor: "pointer",
+                    transition: "opacity 0.15s",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                 >
                   Restore this version
                 </button>
               </div>
               <pre
-                className="p-3 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-x-auto leading-relaxed"
+                style={{
+                  padding: "12px 14px",
+                  background: "var(--cn-bg-s1)", border: "1px solid var(--cn-border)",
+                  borderRadius: 8, fontSize: 12,
+                  fontFamily: "inherit",
+                  whiteSpace: "pre-wrap", overflowX: "auto", lineHeight: 1.7,
+                  margin: 0,
+                }}
                 dangerouslySetInnerHTML={{ __html: diff?.html ?? "" }}
               />
             </div>
           ) : (
-            <div className="text-sm text-neutral-500 dark:text-neutral-400 py-2">
+            <p style={{ fontSize: 13, color: "var(--cn-muted)", paddingTop: 8 }}>
               Select a version to see what changed.
-            </div>
+            </p>
           )}
         </div>
       </div>

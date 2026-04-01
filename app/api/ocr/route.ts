@@ -41,7 +41,6 @@ async function callOpenAIVision(apiKey: string, arrayBuf: ArrayBuffer, mimeType:
 
 export async function POST(request: Request) {
   try {
-    // Verify the caller is an authenticated user before doing any work
     const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json(

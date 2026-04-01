@@ -76,7 +76,7 @@ export default function MarketingHome() {
   const { user } = useAuth();
 
   return (
-    <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
+    <Layout header={<Header />} sidebar={null}>
       <div className="max-w-5xl mx-auto py-4 sm:py-8 px-4">
 
         {/* Hero */}

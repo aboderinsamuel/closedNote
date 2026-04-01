@@ -32,6 +32,7 @@ function relativeDate(iso: string): string {
 
 export function PromptListItem({ prompt }: { prompt: Prompt }) {
   const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -45,27 +46,47 @@ export function PromptListItem({ prompt }: { prompt: Prompt }) {
   return (
     <Link
       href={`/prompts/${prompt.id}`}
-      className="group flex items-center gap-3 px-4 py-2.5 border-t border-neutral-100 dark:border-neutral-800/60 hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "flex", alignItems: "center", gap: 12,
+        padding: "10px 16px",
+        borderTop: "1px solid var(--cn-border-s)",
+        background: hovered ? "var(--cn-bg-s1)" : "transparent",
+        transition: "background 0.12s",
+        textDecoration: "none",
+      }}
     >
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate leading-snug">
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: "var(--cn-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.4, marginBottom: 2 }}>
           {prompt.title}
         </p>
-        <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5 truncate">
+        <p style={{ fontSize: 12, color: "var(--cn-text2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.4 }}>
           {preview}
         </p>
       </div>
 
-      <div className="flex items-center gap-2.5 shrink-0">
-        <span className="hidden lg:block text-xs text-neutral-300 dark:text-neutral-600 tabular-nums">
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <span style={{ display: "none", fontSize: 11, color: "var(--cn-dim)", fontVariantNumeric: "tabular-nums" }}
+          className="lg-show">
           {relativeDate(prompt.updatedAt)}
         </span>
-        <span className="hidden sm:block text-xs text-neutral-300 dark:text-neutral-600">
+        <span style={{ fontSize: 11, color: "var(--cn-dim)" }}>
           {MODEL_LABELS[prompt.model] ?? prompt.model}
         </span>
         <button
           onClick={handleCopy}
-          className="opacity-0 group-hover:opacity-100 px-2 py-1 text-xs font-medium bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 rounded hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-all"
+          style={{
+            opacity: hovered ? 1 : 0,
+            padding: "3px 10px",
+            fontSize: 11, fontWeight: 600,
+            background: copied ? "rgba(123,216,143,0.15)" : "var(--cn-bg-s2)",
+            color: copied ? "#7BD88F" : "var(--cn-muted)",
+            border: `1px solid ${copied ? "rgba(123,216,143,0.3)" : "var(--cn-border)"}`,
+            borderRadius: 6,
+            cursor: "pointer",
+            transition: "all 0.15s",
+          }}
           aria-label="Copy prompt"
         >
           {copied ? "Copied" : "Copy"}

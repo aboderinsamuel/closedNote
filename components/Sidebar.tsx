@@ -14,48 +14,48 @@ export function Sidebar({ prompts, activeCollection }: SidebarProps) {
   const groups = groupPromptsByCollection(prompts);
   const collections = Object.keys(groups).sort((a, b) => a.localeCompare(b));
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-
-  const toggle = (c: string) =>
-    setExpanded((prev) => ({ ...prev, [c]: !prev[c] }));
+  const toggle = (c: string) => setExpanded((prev) => ({ ...prev, [c]: !prev[c] }));
 
   return (
-    <aside className="w-56 shrink-0 border-r border-neutral-200 dark:border-neutral-800 flex flex-col h-full overflow-y-auto">
-      <div className="p-3 space-y-0.5">
+    <aside style={{
+      width: 216, flexShrink: 0,
+      borderRight: "1px solid var(--cn-border-s)",
+      height: "100%", overflowY: "auto",
+      background: "var(--cn-bg)",
+    }}>
+      <div style={{ padding: "10px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
+
         {/* All prompts */}
-        <Link
+        <SideLink
           href="/dashboard"
-          className={`flex items-center justify-between px-2.5 py-2 rounded-md text-sm transition-colors ${
-            !activeCollection
-              ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium"
-              : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-          }`}
-        >
-          <span className="flex items-center gap-2">
-            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          active={!activeCollection}
+          icon={
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 14, height: 14 }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
-            All prompts
-          </span>
-          <span className="text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
-            {prompts.length}
-          </span>
-        </Link>
+          }
+          count={prompts.length}
+        >
+          All prompts
+        </SideLink>
 
         {/* Threads */}
-        <Link
+        <SideLink
           href="/chains"
-          className="flex items-center gap-2 px-2.5 py-2 rounded-md text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+          active={false}
+          icon={
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 14, height: 14 }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+          }
         >
-          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
           Threads
-        </Link>
+        </SideLink>
 
         {/* Collections */}
         {collections.length > 0 && (
-          <div className="pt-3 mt-1 border-t border-neutral-100 dark:border-neutral-800">
-            <p className="px-2.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-1.5">
+          <div style={{ paddingTop: 12, marginTop: 4, borderTop: "1px solid var(--cn-border-s)" }}>
+            <p style={{ padding: "0 8px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--cn-dim)", marginBottom: 6 }}>
               Collections
             </p>
             {collections.map((collection) => {
@@ -66,37 +66,34 @@ export function Sidebar({ prompts, activeCollection }: SidebarProps) {
 
               return (
                 <div key={collection}>
-                  <div className={`flex items-center rounded-md transition-colors ${
-                    isActive
-                      ? "bg-neutral-100 dark:bg-neutral-800"
-                      : "hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  }`}>
+                  <div style={{ display: "flex", alignItems: "center", borderRadius: 6, background: isActive ? "var(--cn-bg-s2)" : "transparent", transition: "background 0.12s" }}>
                     <Link
                       href={`/dashboard?collection=${encodeURIComponent(collection)}`}
-                      className={`flex-1 flex items-center gap-2 px-2.5 py-2 text-sm min-w-0 transition-colors ${
-                        isActive
-                          ? "text-neutral-900 dark:text-neutral-100 font-medium"
-                          : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
-                      }`}
+                      style={{
+                        flex: 1, display: "flex", alignItems: "center", gap: 7,
+                        padding: "7px 8px", fontSize: 13, textDecoration: "none", minWidth: 0,
+                        color: isActive ? "var(--cn-text)" : "var(--cn-text2)",
+                        fontWeight: isActive ? 600 : 500,
+                        transition: "color 0.12s",
+                      }}
+                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = "var(--cn-text)"; }}
+                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = "var(--cn-text2)"; }}
                     >
-                      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: 13, height: 13, flexShrink: 0, color: "var(--cn-dim)" }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                       </svg>
-                      <span className="truncate">{label}</span>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
                     </Link>
-                    <div className="flex items-center gap-0.5 pr-1.5 shrink-0">
-                      <span className="text-xs text-neutral-400 dark:text-neutral-500 tabular-nums w-5 text-right">
-                        {count}
-                      </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 2, paddingRight: 6, flexShrink: 0 }}>
+                      <span style={{ fontSize: 11, color: "var(--cn-dim)", minWidth: 16, textAlign: "right" }}>{count}</span>
                       <button
                         onClick={() => toggle(collection)}
-                        className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                        style={{ padding: 3, borderRadius: 4, border: "none", background: "none", cursor: "pointer", color: "var(--cn-dim)", display: "flex", transition: "background 0.12s" }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s2)")}
+                        onMouseLeave={e => (e.currentTarget.style.background = "none")}
                         aria-label={isExpanded ? "Collapse" : "Expand"}
                       >
-                        <svg
-                          className={`w-3 h-3 text-neutral-400 transition-transform duration-150 ${isExpanded ? "rotate-180" : ""}`}
-                          fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        >
+                        <svg style={{ width: 11, height: 11, transition: "transform 0.15s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </button>
@@ -104,12 +101,14 @@ export function Sidebar({ prompts, activeCollection }: SidebarProps) {
                   </div>
 
                   {isExpanded && (
-                    <div className="ml-4 border-l border-neutral-200 dark:border-neutral-700 pl-2 py-0.5 mb-0.5">
+                    <div style={{ marginLeft: 16, borderLeft: "1px solid var(--cn-border-s)", paddingLeft: 8, paddingTop: 2, paddingBottom: 2 }}>
                       {groups[collection].map((prompt) => (
                         <Link
                           key={prompt.id}
                           href={`/prompts/${prompt.id}`}
-                          className="block text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 truncate py-1 px-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                          style={{ display: "block", fontSize: 12, color: "var(--cn-muted)", padding: "4px 6px", borderRadius: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "none", transition: "color 0.12s, background 0.12s" }}
+                          onMouseEnter={e => { e.currentTarget.style.color = "var(--cn-text)"; e.currentTarget.style.background = "var(--cn-bg-s1)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = "var(--cn-muted)"; e.currentTarget.style.background = "none"; }}
                         >
                           {prompt.title}
                         </Link>
@@ -123,5 +122,35 @@ export function Sidebar({ prompts, activeCollection }: SidebarProps) {
         )}
       </div>
     </aside>
+  );
+}
+
+function SideLink({ href, active, icon, count, children }: {
+  href: string; active: boolean; icon: React.ReactNode;
+  count?: number; children: React.ReactNode;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "7px 8px", borderRadius: 6, fontSize: 13, textDecoration: "none",
+        fontWeight: active ? 600 : 500,
+        color: active ? "var(--cn-text)" : "var(--cn-text2)",
+        background: active ? "var(--cn-bg-s2)" : hovered ? "var(--cn-bg-s1)" : "transparent",
+        transition: "background 0.12s, color 0.12s",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <span style={{ display: "flex", alignItems: "center", gap: 7, color: active || hovered ? "var(--cn-text)" : "var(--cn-text2)" }}>
+        <span style={{ color: "var(--cn-dim)", display: "flex" }}>{icon}</span>
+        {children}
+      </span>
+      {count !== undefined && (
+        <span style={{ fontSize: 11, color: "var(--cn-dim)" }}>{count}</span>
+      )}
+    </Link>
   );
 }
