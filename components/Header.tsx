@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "./AuthProvider";
@@ -111,12 +112,15 @@ export function Header({ showMobileMenu = true, onSearch }: HeaderProps) {
             </button>
           )}
 
-          {/* Logo — exact landing page style */}
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <span style={{ fontWeight: 900, fontSize: 19, letterSpacing: "-0.025em", fontFamily: "Georgia,'Times New Roman',serif" }}>
-              <span style={{ color: "var(--cn-text)" }}>closed</span>
-              <span style={{ color: "var(--cn-accent)" }}>Note</span>
-            </span>
+          {/* Logo */}
+          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+            <Image
+              src="/closedNote-nobg.png"
+              alt="closedNote"
+              width={160}
+              height={160}
+              style={{ objectFit: "contain" }}
+            />
           </Link>
 
           {/* Nav links */}

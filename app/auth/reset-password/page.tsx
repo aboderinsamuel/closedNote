@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -94,11 +95,15 @@ export default function ResetPasswordPage() {
       minHeight: "100vh", background: "var(--cn-bg)", padding: "0 16px",
     }}>
       <div style={{ width: "100%", maxWidth: 400 }}>
-        {/* Logo accent */}
-        <div className="animate-fade-up" style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 32, justifyContent: "center" }}>
-          <span style={{ width: 20, height: 2, background: "var(--cn-accent)", borderRadius: 2, display: "inline-block" }} />
-          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--cn-accent)", letterSpacing: "0.1em", textTransform: "uppercase" }}>closedNote</span>
-          <span style={{ width: 20, height: 2, background: "var(--cn-accent)", borderRadius: 2, display: "inline-block" }} />
+        {/* Logo */}
+        <div className="animate-fade-up" style={{ display: "flex", justifyContent: "center", marginBottom: 32 }}>
+          <Image
+            src="/closedNote-nobg.png"
+            alt="closedNote"
+            width={160}
+            height={160}
+            style={{ objectFit: "contain" }}
+          />
         </div>
 
         <div className="animate-fade-up" style={{

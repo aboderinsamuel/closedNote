@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
@@ -119,21 +120,15 @@ export default function LoginPage() {
       <div className="flex items-center justify-center min-h-[calc(100vh-7rem)] px-4 py-8">
         <div className="animate-fade-up w-full max-w-sm" style={{ animationDelay: "0ms" }}>
 
-          {/* Accent bar */}
+          {/* Logo */}
           <div className="flex items-center justify-center mb-8">
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{
-                width: 32, height: 3, borderRadius: 2,
-                background: "var(--cn-accent)", display: "inline-block",
-              }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--cn-accent)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                closedNote
-              </span>
-              <span style={{
-                width: 32, height: 3, borderRadius: 2,
-                background: "var(--cn-accent)", display: "inline-block",
-              }} />
-            </div>
+            <Image
+              src="/closedNote-nobg.png"
+              alt="closedNote"
+              width={160}
+              height={160}
+              style={{ objectFit: "contain" }}
+            />
           </div>
 
           {/* Card */}
