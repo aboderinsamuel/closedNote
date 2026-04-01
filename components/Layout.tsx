@@ -38,7 +38,7 @@ export function Layout({ children, header, sidebar }: LayoutProps) {
       : header;
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-[#141414] relative">
+    <div className="min-h-screen flex flex-col relative" style={{ backgroundColor: "var(--cn-bg)", color: "var(--cn-text)" }}>
       <SparkleBackground />
       {enhancedHeader}
       <div className="flex-1 flex overflow-x-hidden">
@@ -53,15 +53,18 @@ export function Layout({ children, header, sidebar }: LayoutProps) {
         >
           <div className="absolute inset-0 bg-black/40" onClick={closeMobileSidebar} />
           <div
-            className={`absolute inset-y-0 left-0 w-72 max-w-[85%] bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 shadow-xl transform transition-transform ${
+            className={`absolute inset-y-0 left-0 w-72 max-w-[85%] shadow-xl transform transition-transform ${
               mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
+            style={{ backgroundColor: "var(--cn-bg-s1)", borderRight: "1px solid var(--cn-border-s)" }}
           >
-            <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 flex justify-end">
+            <div style={{ padding: 12, borderBottom: "1px solid var(--cn-border-s)", display: "flex", justifyContent: "flex-end" }}>
               <button
                 aria-label="Close menu"
                 onClick={closeMobileSidebar}
-                className="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                style={{ padding: 8, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", color: "var(--cn-muted)" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s2)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

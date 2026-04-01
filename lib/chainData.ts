@@ -14,7 +14,7 @@ export async function getAllChains(): Promise<PromptChain[]> {
     const chains = chainsData as ChainRow[] | null;
 
     if (error || !chains) {
-      console.error("[chainData] Failed to fetch chains:", error);
+      console.error("[chainData] getAllChains:", error);
       return [];
     }
 
@@ -29,7 +29,7 @@ export async function getAllChains(): Promise<PromptChain[]> {
     const steps = stepsData as StepRow[] | null;
 
     if (stepsError) {
-      console.warn("[chainData] Failed to fetch steps:", stepsError);
+      console.warn("[chainData] fetchSteps:", stepsError);
     }
 
     const stepsByChain: Record<string, ChainStep[]> = {};
@@ -60,7 +60,7 @@ export async function getAllChains(): Promise<PromptChain[]> {
       updatedAt: c.updated_at,
     }));
   } catch (err) {
-    console.error("[chainData] Error:", err);
+    console.error("[chainData] getAllChains:", err);
     return [];
   }
 }
@@ -103,7 +103,7 @@ export async function getChainById(id: string): Promise<PromptChain | undefined>
       updatedAt: chain.updated_at,
     };
   } catch (err) {
-    console.error("[chainData] Error:", err);
+    console.error("[chainData] getChainById:", err);
     return undefined;
   }
 }
@@ -114,7 +114,6 @@ export async function saveChain(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  // Check if chain already exists
   const { data: existingData } = await supabase
     .from("prompt_chains")
     .select("id")
@@ -133,7 +132,7 @@ export async function saveChain(
       .eq("id", chain.id);
     if (error) throw error;
 
-    // Delete old steps and re-insert
+    // Delete and re-insert steps so ordering is always consistent
     await supabase.from("chain_steps").delete().eq("chain_id", chain.id);
   } else {
     const { error } = await supabase.from("prompt_chains").insert({
@@ -146,7 +145,6 @@ export async function saveChain(
     if (error) throw error;
   }
 
-  // Insert steps
   if (chain.steps.length > 0) {
     const stepInserts = chain.steps.map((s, i) => ({
       chain_id: chain.id,

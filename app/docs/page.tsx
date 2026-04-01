@@ -21,7 +21,7 @@ const toc = [
 
 export default function DocsPage() {
   return (
-    <Layout header={<Header promptCount={0} />} sidebar={null}>
+    <Layout header={<Header />} sidebar={null}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
 
         {/* Header */}

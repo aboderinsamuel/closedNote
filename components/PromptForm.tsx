@@ -17,7 +17,7 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
   const { prompts, addOptimistic, refresh } = usePrompts();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [model, setModel] = useState<PromptModel>("gpt-4o");
+  const [model, setModel] = useState<PromptModel>("");
   const [collection, setCollection] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -113,9 +113,30 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
       });
   };
 
+  const labelStyle: React.CSSProperties = {
+    fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
+    color: "var(--cn-muted)", display: "block", marginBottom: 6,
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "9px 12px",
+    background: "var(--cn-bg-s2)",
+    border: "1px solid var(--cn-border)",
+    borderRadius: 8, fontSize: 13, color: "var(--cn-text)",
+    outline: "none", transition: "border-color 0.15s",
+    boxSizing: "border-box",
+  };
+
   return (
     <div
-      className={`bg-white dark:bg-neutral-900 rounded-2xl shadow-lg shadow-neutral-300/50 dark:shadow-black/50 ring-1 ring-neutral-900/5 dark:ring-white/5 overflow-hidden ${shaking ? "animate-shake" : ""}`}
+      className={shaking ? "animate-shake" : ""}
+      style={{
+        background: "var(--cn-bg-card)",
+        border: "1px solid var(--cn-border)",
+        borderRadius: 16,
+        boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+        overflow: "hidden",
+      }}
     >
       <form
         onSubmit={handleSubmit}
@@ -128,7 +149,7 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
         }}
       >
         {/* Title */}
-        <div className="px-6 sm:px-8 pt-7 pb-4">
+        <div style={{ padding: "28px 32px 16px" }}>
           <input
             type="text"
             value={title}
@@ -138,15 +159,27 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
               markDirty();
             }}
             placeholder="Untitled prompt"
-            className="w-full text-2xl sm:text-3xl font-semibold bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-300 dark:placeholder-neutral-700 focus:outline-none"
+            style={{
+              width: "100%", fontSize: 26, fontWeight: 700,
+              background: "transparent", color: "var(--cn-text)",
+              border: "none", outline: "none",
+              fontFamily: "inherit",
+            }}
           />
           {titleError && (
-            <p className="mt-2 text-xs text-red-500 dark:text-red-400">{titleError}</p>
+            <p style={{ marginTop: 8, fontSize: 12, color: "#ef4444" }}>{titleError}</p>
           )}
         </div>
 
         {/* Writing surface */}
-        <div className="mx-4 sm:mx-6 mb-6 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 focus-within:border-neutral-400 dark:focus-within:border-neutral-600 focus-within:ring-2 focus-within:ring-neutral-100 dark:focus-within:ring-neutral-800/80 transition-all overflow-hidden">
+        <div style={{
+          margin: "0 20px 20px",
+          borderRadius: 10,
+          background: "var(--cn-bg-s1)",
+          border: "1px solid var(--cn-border)",
+          overflow: "hidden",
+          transition: "border-color 0.15s",
+        }}>
           <textarea
             ref={textareaRef}
             value={content}
@@ -175,34 +208,47 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
               }
             }}
             placeholder="Write your prompt here..."
-            className="w-full px-5 py-4 bg-transparent text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 font-mono text-sm leading-relaxed focus:outline-none resize-none overflow-hidden min-h-[260px]"
+            style={{
+              width: "100%", padding: "16px 20px",
+              background: "transparent",
+              color: "var(--cn-text)",
+              fontFamily: "inherit",
+              fontSize: 15, lineHeight: 1.75,
+              border: "none", outline: "none",
+              resize: "none", overflow: "hidden",
+              minHeight: 260,
+              boxSizing: "border-box",
+            }}
           />
-          <div className="flex items-center justify-between px-5 py-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/40">
-            <span className="text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "8px 20px",
+            borderTop: "1px solid var(--cn-border-s)",
+            background: "var(--cn-bg-s2)",
+          }}>
+            <span style={{ fontSize: 11, color: "var(--cn-dim)", fontVariantNumeric: "tabular-nums" }}>
               {content.length} chars
             </span>
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">
+            <span style={{ fontSize: 11, color: "var(--cn-dim)" }}>
               Ctrl/Cmd+Enter to save
             </span>
           </div>
           {contentError && (
-            <p className="px-5 pb-3 text-xs text-red-500 dark:text-red-400">{contentError}</p>
+            <p style={{ padding: "0 20px 12px", fontSize: 12, color: "#ef4444" }}>{contentError}</p>
           )}
         </div>
 
         {/* Metadata */}
-        <div className="px-6 sm:px-8 pb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-              Collection
-            </label>
+        <div style={{ padding: "0 32px 24px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
+          <div>
+            <label style={labelStyle}>Collection</label>
             <input
               type="text"
               list="collection-options"
               value={collection}
               onChange={(e) => { setCollection(e.target.value); markDirty(); }}
               placeholder="e.g. coding"
-              className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow"
+              style={inputStyle}
             />
             {existingCollections.length > 0 && (
               <datalist id="collection-options">
@@ -213,34 +259,49 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="model-select" className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-              Model
-            </label>
-            <select
-              id="model-select"
+          <div>
+            <label htmlFor="model-input" style={labelStyle}>Model</label>
+            <input
+              id="model-input"
+              type="text"
+              list="model-options"
               value={model}
-              onChange={(e) => { setModel(e.target.value as PromptModel); markDirty(); }}
-              className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700 transition-shadow"
-            >
-              <option value="gpt-4o">GPT-4o</option>
-              <option value="gpt-4o-mini">GPT-4o Mini</option>
-              <option value="gpt-4">GPT-4</option>
-              <option value="claude-3.5">Claude 3.5</option>
-              <option value="claude-3">Claude 3</option>
-              <option value="gemini-2">Gemini 2</option>
-              <option value="gemini-pro">Gemini Pro</option>
-              <option value="mistral">Mistral</option>
-              <option value="other">Other</option>
-            </select>
+              onChange={(e) => { setModel(e.target.value); markDirty(); }}
+              placeholder="e.g. claude-sonnet-4-6"
+              autoComplete="off"
+              style={inputStyle}
+            />
+            <datalist id="model-options">
+              <option value="claude-opus-4-6" />
+              <option value="claude-sonnet-4-6" />
+              <option value="claude-haiku-4-5" />
+              <option value="claude-3-5-sonnet-20241022" />
+              <option value="claude-3-5-haiku-20241022" />
+              <option value="gpt-4o" />
+              <option value="gpt-4o-mini" />
+              <option value="gpt-4-turbo" />
+              <option value="o1" />
+              <option value="o3-mini" />
+              <option value="gemini-2.0-flash" />
+              <option value="gemini-2.5-pro" />
+              <option value="gemini-1.5-pro" />
+              <option value="mistral-large" />
+              <option value="deepseek-r1" />
+              <option value="llama-3.3-70b" />
+            </datalist>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-              Tags
-            </label>
+          <div>
+            <label style={labelStyle}>Tags</label>
             <div
-              className="flex flex-wrap gap-1.5 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg focus-within:ring-2 focus-within:ring-neutral-300 dark:focus-within:ring-neutral-700 transition-shadow cursor-text min-h-[40px]"
+              style={{
+                display: "flex", flexWrap: "wrap", gap: 6,
+                padding: "8px 12px",
+                background: "var(--cn-bg-s2)",
+                border: "1px solid var(--cn-border)",
+                borderRadius: 8, minHeight: 40, cursor: "text",
+                transition: "border-color 0.15s",
+              }}
               onClick={() => {
                 const input = document.getElementById("tag-input") as HTMLInputElement | null;
                 input?.focus();
@@ -249,13 +310,20 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs rounded-md shadow-sm"
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 4,
+                    padding: "2px 8px",
+                    background: "var(--cn-bg-card)",
+                    border: "1px solid var(--cn-border)",
+                    color: "var(--cn-text2)",
+                    fontSize: 11, borderRadius: 6,
+                  }}
                 >
                   {tag}
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); removeTag(tag); }}
-                    className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 leading-none"
+                    style={{ color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer", lineHeight: 1, padding: 0, fontSize: 13 }}
                     aria-label={`Remove tag ${tag}`}
                   >
                     ×
@@ -277,23 +345,40 @@ export function PromptForm({ onDirtyChange }: PromptFormProps) {
                 }}
                 onBlur={() => { if (tagInput.trim()) addTag(tagInput); }}
                 placeholder={tags.length === 0 ? "Add tags..." : ""}
-                className="flex-1 min-w-[80px] bg-transparent text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none py-0.5"
+                style={{
+                  flex: 1, minWidth: 80,
+                  background: "transparent", fontSize: 13,
+                  color: "var(--cn-text)", border: "none", outline: "none",
+                }}
               />
             </div>
-            <p className="text-xs text-neutral-400 dark:text-neutral-500">
+            <p style={{ marginTop: 4, fontSize: 11, color: "var(--cn-dim)" }}>
               Enter or comma to add
             </p>
           </div>
         </div>
 
         {/* Action bar */}
-        <div className="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-950/30 px-6 sm:px-8 py-4 flex items-center justify-between">
-          <span className="text-xs text-neutral-400 dark:text-neutral-500">
+        <div style={{
+          borderTop: "1px solid var(--cn-border-s)",
+          background: "var(--cn-bg-s1)",
+          padding: "14px 32px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <span style={{ fontSize: 12, color: "var(--cn-dim)" }}>
             Saved to your account
           </span>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors"
+            style={{
+              padding: "9px 24px",
+              background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)",
+              border: "none", borderRadius: 99,
+              fontSize: 13, fontWeight: 600, cursor: "pointer",
+              transition: "opacity 0.15s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
           >
             Save prompt
           </button>

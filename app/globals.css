@@ -1,10 +1,95 @@
+/* Inter is loaded via next/font/google in layout.tsx */
+
+/* Theme tokens — outside @layer so they're global */
+
+:root {
+  --cn-bg:       #faf4e9;
+  --cn-bg-s1:    #f6eedb;
+  --cn-bg-s2:    #f3ecdb;
+  --cn-bg-s3:    #ede8d8;
+  --cn-bg-card:  #ffffff;
+  --cn-text:     #1e1c1a;
+  --cn-text2:    #4e4b47;
+  --cn-muted:    #706e6b;
+  --cn-dim:      #9b9997;
+  --cn-border:   #ddd8d0;
+  --cn-border-s: #e8e2d9;
+  --cn-border-d: #c8c3bb;
+  --cn-btn-bg:   #1e1c1a;
+  --cn-btn-tx:   #faf4e9;
+  --cn-accent:   #7651e0;
+  --cn-badge-bg: #f3ecdb;
+}
+
+.dark {
+  --cn-bg:       #141414;
+  --cn-bg-s1:    #1e1c1a;
+  --cn-bg-s2:    #282625;
+  --cn-bg-s3:    #262321;
+  --cn-bg-card:  #29282a;
+  --cn-text:     #F7F1FF;
+  --cn-text2:    #D4D0DA;
+  --cn-muted:    #A8A5AE;
+  --cn-dim:      #6e6b72;
+  --cn-border:   #4e4b47;
+  --cn-border-s: #353331;
+  --cn-border-d: #222222;
+  --cn-btn-bg:   #F7F1FF;
+  --cn-btn-tx:   #111111;
+  --cn-accent:   #948AE3;
+  --cn-badge-bg: #1e1c1a;
+}
+
+/* ──────────────────────────────────────────────────────────────────────── */
+
+/* Dark — Convex exact warm-dark palette */
+[data-cn-theme="dark"] {
+  --cn-bg:       #141414;
+  --cn-bg-s1:    #1e1c1a;
+  --cn-bg-s2:    #282625;
+  --cn-bg-s3:    #262321;
+  --cn-bg-card:  #29282a;
+  --cn-text:     #F7F1FF;
+  --cn-text2:    #D4D0DA;
+  --cn-muted:    #A8A5AE;
+  --cn-dim:      #6e6b72;
+  --cn-border:   #4e4b47;
+  --cn-border-s: #353331;
+  --cn-border-d: #222222;
+  --cn-btn-bg:   #F7F1FF;
+  --cn-btn-tx:   #111111;
+  --cn-accent:   #948AE3;
+  --cn-badge-bg: #1e1c1a;
+}
+
+/* Light — Convex warm-cream palette (oldLace / antiqueWhite tokens) */
+[data-cn-theme="light"] {
+  --cn-bg:       #faf4e9;
+  --cn-bg-s1:    #f6eedb;
+  --cn-bg-s2:    #f3ecdb;
+  --cn-bg-s3:    #ede8d8;
+  --cn-bg-card:  #ffffff;
+  --cn-text:     #1e1c1a;
+  --cn-text2:    #4e4b47;
+  --cn-muted:    #706e6b;
+  --cn-dim:      #9b9997;
+  --cn-border:   #ddd8d0;
+  --cn-border-s: #e8e2d9;
+  --cn-border-d: #c8c3bb;
+  --cn-btn-bg:   #1e1c1a;
+  --cn-btn-tx:   #faf4e9;
+  --cn-accent:   #7651e0;
+  --cn-badge-bg: #f3ecdb;
+}
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply font-sans bg-[#141414] text-neutral-900 dark:text-neutral-100;
+    @apply font-sans;
   }
 
   * {
@@ -29,8 +114,11 @@
     60%       { transform: translateX(-3px); }
     80%       { transform: translateX(3px); }
   }
-  .animate-shake {
-    animation: shake 0.35s ease-in-out;
+  .animate-shake { animation: shake 0.35s ease-in-out; }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
   }
 
   @keyframes fadeUp {
@@ -61,20 +149,40 @@
   }
 
   @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: scale(0.96); }
     to   { opacity: 1; transform: scale(1); }
   }
   .animate-scale-in {
     opacity: 0;
-    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: scaleIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   @keyframes borderPulse {
     0%, 100% { border-color: rgba(16, 185, 129, 0.3); }
     50%       { border-color: rgba(16, 185, 129, 0.8); }
   }
-  .animate-border-pulse {
-    animation: borderPulse 2.5s ease-in-out infinite;
+  .animate-border-pulse { animation: borderPulse 2.5s ease-in-out infinite; }
+
+  /* ── Testimonials marquee ── */
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes marqueeReverse {
+    0%   { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+  .animate-marquee {
+    animation: marquee 38s linear infinite;
+    will-change: transform;
+  }
+  .animate-marquee-reverse {
+    animation: marqueeReverse 38s linear infinite;
+    will-change: transform;
+  }
+  .marquee-wrap:hover .animate-marquee,
+  .marquee-wrap:hover .animate-marquee-reverse {
+    animation-play-state: paused;
   }
 }
 
@@ -88,16 +196,14 @@
     opacity: 0.3;
     animation: twinkle 3s infinite;
   }
-
   @keyframes twinkle {
     0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.6; }
+    50%       { opacity: 0.6; }
   }
 
   .landing-card {
     @apply bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl transition-all duration-200;
   }
-
   .landing-card:hover {
     @apply border-neutral-300 dark:border-neutral-700 shadow-sm;
   }
@@ -105,8 +211,101 @@
   .diff-del {
     @apply bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 line-through px-0.5 rounded;
   }
-
   .diff-ins {
     @apply bg-emerald-100 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 px-0.5 rounded;
   }
+
+  /* ── Landing page sections ── */
+  .cn-section {
+    padding: 96px 24px;
+    border-top: 1px solid var(--cn-border-s, #353331);
+  }
+
+  @media (max-width: 768px) {
+    .cn-section { padding: 64px 20px; }
+  }
 }
+
+/* Palette overrides — outside @layer so they beat Tailwind utilities */
+
+/* Body base */
+body {
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-weight: 500;
+  background-color: var(--cn-bg);
+  color: var(--cn-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Ensure all inputs and textareas inherit Inter */
+input, textarea, select, button {
+  font-family: inherit;
+}
+
+/* ── Light-mode: neutral → warm cream ── */
+.bg-white             { background-color: var(--cn-bg-card) !important; }
+.bg-neutral-50        { background-color: var(--cn-bg-s1)  !important; }
+.bg-neutral-100       { background-color: var(--cn-bg-s2)  !important; }
+.bg-white\/80         { background-color: rgba(250,244,233,.88) !important; }
+.bg-white\/60         { background-color: rgba(250,244,233,.6)  !important; }
+.border-neutral-200   { border-color: var(--cn-border)   !important; }
+.border-neutral-100   { border-color: var(--cn-border-s) !important; }
+.border-neutral-200\/70 { border-color: rgba(221,216,208,.7) !important; }
+.text-neutral-900     { color: var(--cn-text)  !important; }
+.text-neutral-800     { color: var(--cn-text)  !important; }
+.text-neutral-700     { color: var(--cn-text2) !important; }
+.text-neutral-600     { color: var(--cn-text2) !important; }
+.text-neutral-500     { color: var(--cn-muted) !important; }
+.text-neutral-400     { color: var(--cn-dim)   !important; }
+.text-neutral-300     { color: var(--cn-dim)   !important; }
+.hover\:bg-neutral-50:hover   { background-color: var(--cn-bg-s1) !important; }
+.hover\:bg-neutral-100:hover  { background-color: var(--cn-bg-s2) !important; }
+.hover\:bg-neutral-200:hover  { background-color: var(--cn-bg-s3) !important; }
+.hover\:bg-neutral-300:hover  { background-color: var(--cn-bg-s3) !important; }
+.hover\:text-neutral-900:hover { color: var(--cn-text)  !important; }
+.hover\:text-neutral-600:hover { color: var(--cn-text2) !important; }
+.group:hover .group-hover\:text-neutral-600 { color: var(--cn-text2) !important; }
+.group:hover .group-hover\:text-neutral-700 { color: var(--cn-text2) !important; }
+/* Divide utility */
+.divide-y > * + * { border-top-color: var(--cn-border-s) !important; }
+.divide-neutral-100 > * + * { border-top-color: var(--cn-border-s) !important; }
+
+/* ── Dark-mode: Convex warm dark ── */
+.dark .bg-white                   { background-color: var(--cn-bg-card)  !important; }
+.dark .dark\:bg-neutral-950       { background-color: var(--cn-bg)       !important; }
+.dark .dark\:bg-neutral-900       { background-color: var(--cn-bg-s1)    !important; }
+.dark .dark\:bg-transparent       { background-color: transparent        !important; }
+.dark .dark\:bg-neutral-800       { background-color: var(--cn-bg-s2)    !important; }
+.dark .dark\:bg-neutral-700       { background-color: var(--cn-border-s) !important; }
+.dark .dark\:bg-neutral-100       { background-color: var(--cn-btn-bg)   !important; }
+.dark .dark\:bg-neutral-900\/80   { background-color: rgba(30,28,26,.88) !important; }
+.dark .dark\:bg-neutral-900\/50   { background-color: rgba(30,28,26,.5)  !important; }
+.dark .dark\:bg-neutral-800\/50   { background-color: rgba(40,38,37,.5)  !important; }
+.dark .dark\:bg-neutral-800\/40   { background-color: rgba(40,38,37,.4)  !important; }
+.dark .dark\:bg-neutral-800\/60   { background-color: rgba(40,38,37,.6)  !important; }
+.dark .dark\:border-neutral-900   { border-color: var(--cn-bg)       !important; }
+.dark .dark\:border-neutral-800   { border-color: var(--cn-border-s) !important; }
+.dark .dark\:border-neutral-700   { border-color: var(--cn-border)   !important; }
+.dark .dark\:border-neutral-100   { border-color: var(--cn-border-s) !important; }
+.dark .dark\:border-neutral-800\/70 { border-color: rgba(53,51,49,.7)   !important; }
+.dark .dark\:text-neutral-100     { color: var(--cn-text)   !important; }
+.dark .dark\:text-neutral-200     { color: var(--cn-text2)  !important; }
+.dark .dark\:text-neutral-300     { color: var(--cn-text2)  !important; }
+.dark .dark\:text-neutral-400     { color: var(--cn-muted)  !important; }
+.dark .dark\:text-neutral-500     { color: var(--cn-dim)    !important; }
+.dark .dark\:text-neutral-600     { color: var(--cn-dim)    !important; }
+.dark .dark\:text-neutral-700     { color: var(--cn-border) !important; }
+.dark .dark\:hover\:bg-neutral-900:hover   { background-color: var(--cn-bg-s1)    !important; }
+.dark .dark\:hover\:bg-neutral-800:hover   { background-color: var(--cn-bg-s2)    !important; }
+.dark .dark\:hover\:bg-neutral-700:hover   { background-color: var(--cn-border-s) !important; }
+.dark .dark\:hover\:bg-neutral-200:hover   { background-color: #ede5f4 !important; }
+.dark .dark\:hover\:text-neutral-100:hover { color: var(--cn-text)  !important; }
+.dark .dark\:hover\:text-neutral-200:hover { color: var(--cn-text2) !important; }
+.dark .dark\:hover\:text-neutral-300:hover { color: var(--cn-text2) !important; }
+.dark .dark\:hover\:border-neutral-700:hover { border-color: var(--cn-border) !important; }
+.dark .group:hover .dark\:group-hover\:text-neutral-300 { color: var(--cn-text2) !important; }
+/* Opacity-modifed hover variants */
+.dark .dark\:hover\:bg-neutral-800\/40:hover { background-color: rgba(40,38,37,.4) !important; }
+.dark .dark\:hover\:bg-neutral-800\/50:hover { background-color: rgba(40,38,37,.5) !important; }
+/* Opacity-modified border variants */
+.dark .dark\:border-neutral-800\/60 { border-color: rgba(53,51,49,.6) !important; }

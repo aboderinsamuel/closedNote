@@ -1,4 +1,6 @@
-# closedNote
+<p align="center">
+  <img src="screenshots/closedNote.png" alt="closedNote" style="max-width:100%;height:auto;" />
+</p>
 
 > **Prompts are living documents. closedNote is the only prompt manager that remembers how they evolved.**
 

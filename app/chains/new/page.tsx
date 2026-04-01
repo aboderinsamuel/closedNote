@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
@@ -117,70 +117,86 @@ export default function NewChainPage() {
     return null;
   }
 
+  const labelStyle: React.CSSProperties = {
+    display: "block", fontSize: 11, fontWeight: 700,
+    textTransform: "uppercase", letterSpacing: "0.08em",
+    color: "var(--cn-muted)", marginBottom: 6,
+  };
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "9px 12px",
+    background: "var(--cn-bg-s2)", border: "1px solid var(--cn-border)",
+    borderRadius: 8, fontSize: 13, color: "var(--cn-text)",
+    outline: "none", transition: "border-color 0.15s",
+    boxSizing: "border-box",
+  };
+
   return (
-    <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
-      <div className="max-w-3xl mx-auto">
-        <Link
-          href="/chains"
-          className="inline-flex items-center text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors mb-6 sm:mb-8"
-        >
-          &larr; Back to Threads
-        </Link>
+    <Layout header={<Header />} sidebar={null}>
+      <div className="animate-fade-up" style={{ maxWidth: 760, margin: "0 auto" }}>
+        {/* Back + title */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+          <Link
+            href="/chains"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--cn-muted)", textDecoration: "none", transition: "color 0.15s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
+          >
+            ← Back to Threads
+          </Link>
+        </div>
 
-        <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-6 sm:mb-8">
-          New Thread
-        </h1>
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+            <span style={{ width: 20, height: 2, background: "var(--cn-accent)", borderRadius: 2, display: "inline-block" }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--cn-accent)", letterSpacing: "0.1em", textTransform: "uppercase" }}>New Thread</span>
+          </div>
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: "var(--cn-text)", letterSpacing: "-0.025em" }}>
+            Build a Thread
+          </h1>
+        </div>
 
-        {/* Error display */}
         {error && (
-          <div className="p-3 sm:p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300 mb-6">
+          <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", fontSize: 13, color: "#ef4444", marginBottom: 20 }}>
             {error}
           </div>
         )}
 
-        {/* Chain metadata */}
-        <div className="space-y-4 mb-8">
+        {/* Metadata */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Title
-            </label>
+            <label style={labelStyle}>Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Blog Post Generator"
-              className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+              style={inputStyle}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Description
-              <span className="ml-1 text-neutral-400 dark:text-neutral-500 font-normal">
-                (optional)
-              </span>
+            <label style={labelStyle}>
+              Description <span style={{ fontWeight: 400, textTransform: "none", color: "var(--cn-dim)" }}>(optional)</span>
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what this thread does..."
               rows={2}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 resize-y"
+              style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
             />
           </div>
         </div>
 
-        {/* Steps section */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base sm:text-lg font-medium text-neutral-900 dark:text-neutral-100">
-              Steps
-            </h2>
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">
+        {/* Steps */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--cn-text)" }}>Steps</h2>
+            <span style={{ fontSize: 12, color: "var(--cn-dim)" }}>
               {steps.length} {steps.length === 1 ? "step" : "steps"}
             </span>
           </div>
 
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {steps.map((step, index) => (
               <ChainStepCard
                 key={step.id}
@@ -198,24 +214,43 @@ export default function NewChainPage() {
           <button
             type="button"
             onClick={handleAddStep}
-            className="mt-4 w-full py-3 border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:border-neutral-400 dark:hover:border-neutral-600 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
+            style={{
+              marginTop: 12, width: "100%", padding: "12px",
+              border: "2px dashed var(--cn-border)", borderRadius: 10,
+              fontSize: 13, fontWeight: 500, color: "var(--cn-muted)",
+              background: "transparent", cursor: "pointer",
+              transition: "border-color 0.15s, color 0.15s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--cn-accent)"; e.currentTarget.style.color = "var(--cn-accent)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--cn-border)"; e.currentTarget.style.color = "var(--cn-muted)"; }}
           >
             + Add Step
           </button>
         </div>
 
-        {/* Save button */}
-        <div className="flex items-center gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+        {/* Save */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 16, borderTop: "1px solid var(--cn-border-s)" }}>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              padding: "9px 24px",
+              background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)",
+              border: "none", borderRadius: 99,
+              fontSize: 13, fontWeight: 600, cursor: "pointer",
+              opacity: saving ? 0.6 : 1,
+              transition: "opacity 0.15s",
+            }}
+            onMouseEnter={e => { if (!saving) e.currentTarget.style.opacity = "0.85"; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = saving ? "0.6" : "1"; }}
           >
             {saving ? "Saving..." : "Save Thread"}
           </button>
           <Link
             href="/chains"
-            className="px-4 py-2.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+            style={{ fontSize: 13, color: "var(--cn-muted)", textDecoration: "none", transition: "color 0.15s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
           >
             Cancel
           </Link>

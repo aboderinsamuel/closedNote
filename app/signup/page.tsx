@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
@@ -38,7 +38,7 @@ const GitHubIcon = () => (
 const MIN_PASSWORD_LENGTH = 6;
 
 export default function SignupPage() {
-  const { signup, loginWithOAuth } = useAuth();
+  const { user, loading: authLoading, signup, loginWithOAuth } = useAuth();
   const router = useRouter();
   const { prompts } = usePrompts();
 
@@ -50,6 +50,13 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) router.replace("/dashboard");
+  }, [user, authLoading, router]);
+
+  if (authLoading || user) return null;
 
   const passwordMeetsLength = password.length >= MIN_PASSWORD_LENGTH;
 
@@ -102,36 +109,55 @@ export default function SignupPage() {
   };
 
   const inputClass =
-    "w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 transition-shadow";
+    "w-full px-3.5 py-2.5 rounded-lg text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 transition-shadow"
+    + " bg-neutral-50 dark:bg-neutral-800"
+    + " border border-neutral-200 dark:border-neutral-700"
+    + " text-neutral-900 dark:text-neutral-100"
+    + " focus:ring-[var(--cn-accent)]/40 focus:border-[var(--cn-accent)]";
 
   if (showEmailConfirmation) {
     return (
-      <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
+      <Layout header={<Header />} sidebar={null}>
         <div className="flex items-center justify-center min-h-[calc(100vh-7rem)] px-4 py-8">
-          <div className="w-full max-w-sm">
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-sm text-center">
-              <div className="w-12 h-12 mx-auto mb-4 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="animate-fade-up w-full max-w-sm">
+            <div
+              className="rounded-2xl p-8 text-center"
+              style={{
+                background: "var(--cn-bg-card)",
+                border: "1px solid var(--cn-border)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+              }}
+            >
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(123,216,143,0.15)" }}>
+                <svg className="w-6 h-6" fill="none" stroke="#7BD88F" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
                 </svg>
               </div>
-              <h1 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-2">Check your inbox</h1>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">We sent a confirmation link to</p>
-              <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-5">{email}</p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 leading-relaxed">
+              <h1 style={{ fontSize: 18, fontWeight: 900, color: "var(--cn-text)", marginBottom: 8, letterSpacing: "-0.02em" }}>
+                Check your inbox
+              </h1>
+              <p style={{ fontSize: 14, color: "var(--cn-muted)", marginBottom: 4 }}>We sent a confirmation link to</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--cn-text)", marginBottom: 20 }}>{email}</p>
+              <p style={{ fontSize: 13, color: "var(--cn-muted)", lineHeight: 1.7, marginBottom: 20 }}>
                 Click the link in the email to verify your account and complete sign-up. You can close this page.
               </p>
-              <div className="p-3.5 bg-neutral-50 dark:bg-neutral-800 rounded-lg text-left mb-5">
-                <p className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Didn&apos;t receive it?</p>
-                <ul className="text-xs text-neutral-500 dark:text-neutral-400 space-y-1">
-                  <li>Check your spam or junk folder</li>
-                  <li>Make sure you entered the correct email</li>
-                  <li>Wait a minute and check again</li>
+              <div className="p-3.5 rounded-lg text-left mb-5"
+                style={{ background: "var(--cn-bg-s2)", border: "1px solid var(--cn-border-s)" }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "var(--cn-text2)", marginBottom: 8 }}>
+                  Didn&apos;t receive it?
+                </p>
+                <ul style={{ fontSize: 12, color: "var(--cn-muted)", listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <li>· Check your spam or junk folder</li>
+                  <li>· Make sure you entered the correct email</li>
+                  <li>· Wait a minute and check again</li>
                 </ul>
               </div>
               <Link
                 href="/login"
-                className="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                style={{ fontSize: 14, color: "var(--cn-muted)", textDecoration: "none", transition: "color 0.15s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
               >
                 Back to sign in
               </Link>
@@ -143,68 +169,100 @@ export default function SignupPage() {
   }
 
   return (
-    <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
+    <Layout header={<Header />} sidebar={null}>
       <div className="flex items-center justify-center min-h-[calc(100vh-7rem)] px-4 py-8">
-        <div className="w-full max-w-sm">
+        <div className="animate-fade-up w-full max-w-sm" style={{ animationDelay: "0ms" }}>
 
-          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-sm">
-            <div className="mb-6">
-              <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">Create an account</h1>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Free forever. No credit card needed.</p>
+          {/* Accent bar */}
+          <div className="flex items-center justify-center mb-8">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{
+                width: 32, height: 3, borderRadius: 2,
+                background: "var(--cn-accent)", display: "inline-block",
+              }} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--cn-accent)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                closedNote
+              </span>
+              <span style={{
+                width: 32, height: 3, borderRadius: 2,
+                background: "var(--cn-accent)", display: "inline-block",
+              }} />
+            </div>
+          </div>
+
+          {/* Card */}
+          <div
+            className="rounded-2xl p-8"
+            style={{
+              background: "var(--cn-bg-card)",
+              border: "1px solid var(--cn-border)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+            }}
+          >
+            <div className="mb-6 animate-fade-up" style={{ animationDelay: "60ms" }}>
+              <h1 style={{ fontSize: 22, fontWeight: 900, color: "var(--cn-text)", letterSpacing: "-0.025em", marginBottom: 6 }}>
+                Create an account
+              </h1>
+              <p style={{ fontSize: 14, color: "var(--cn-muted)" }}>
+                Free forever. No credit card needed.
+              </p>
             </div>
 
             {error && (
-              <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+              <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400 animate-fade-in">
                 {error}
               </div>
             )}
 
             {/* OAuth */}
-            <div className="space-y-2 mb-5">
+            <div className="space-y-2 mb-5 animate-fade-up" style={{ animationDelay: "100ms" }}>
               <button
                 type="button"
                 onClick={() => handleOAuth("google")}
                 disabled={!!oauthLoading}
-                className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ border: "1px solid var(--cn-border)", color: "var(--cn-text2)", background: "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s1)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
               >
                 {oauthLoading === "google" ? (
                   <span className="w-4 h-4 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
-                ) : (
-                  <GoogleIcon />
-                )}
+                ) : <GoogleIcon />}
                 Continue with Google
               </button>
               <button
                 type="button"
                 onClick={() => handleOAuth("github")}
                 disabled={!!oauthLoading}
-                className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ border: "1px solid var(--cn-border)", color: "var(--cn-text2)", background: "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s1)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
               >
                 {oauthLoading === "github" ? (
                   <span className="w-4 h-4 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
-                ) : (
-                  <GitHubIcon />
-                )}
+                ) : <GitHubIcon />}
                 Continue with GitHub
               </button>
             </div>
 
             {/* Divider */}
-            <div className="relative mb-5">
+            <div className="relative mb-5 animate-fade-up" style={{ animationDelay: "140ms" }}>
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-neutral-200 dark:border-neutral-800" />
+                <div style={{ width: "100%", borderTop: "1px solid var(--cn-border)" }} />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white dark:bg-neutral-900 px-3 text-xs text-neutral-400 dark:text-neutral-500">
+                <span style={{ background: "var(--cn-bg-card)", padding: "0 12px", fontSize: 12, color: "var(--cn-muted)" }}>
                   or continue with email
                 </span>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 animate-fade-up" style={{ animationDelay: "180ms" }}>
               <div>
-                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
-                  Display name <span className="text-neutral-400 font-normal">(optional)</span>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--cn-text2)", marginBottom: 6 }}>
+                  Display name{" "}
+                  <span style={{ fontWeight: 400, color: "var(--cn-dim)" }}>(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -217,7 +275,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--cn-text2)", marginBottom: 6 }}>
                   Email
                 </label>
                 <input
@@ -232,7 +290,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--cn-text2)", marginBottom: 6 }}>
                   Password
                 </label>
                 <div className="relative">
@@ -248,43 +306,45 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer" }}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                     tabIndex={-1}
                   >
                     <EyeIcon open={showPassword} />
                   </button>
                 </div>
-                {/* Password requirements */}
-                <div className="mt-2 flex items-center gap-1.5">
+                {/* Password strength indicator */}
+                <div className="mt-2 flex items-center gap-2">
                   <span
-                    className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                      password.length === 0
-                        ? "bg-neutral-200 dark:bg-neutral-700"
+                    className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 transition-colors"
+                    style={{
+                      background: password.length === 0
+                        ? "var(--cn-bg-s3)"
                         : passwordMeetsLength
-                        ? "bg-emerald-500"
-                        : "bg-red-400"
-                    }`}
+                        ? "#7BD88F"
+                        : "#FC618D",
+                    }}
                   >
                     {password.length > 0 && (
                       passwordMeetsLength ? (
-                        <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-2 h-2 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-2 h-2 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       )
                     )}
                   </span>
-                  <span className={`text-xs transition-colors ${
-                    password.length === 0
-                      ? "text-neutral-400 dark:text-neutral-500"
+                  <span className="text-xs transition-colors" style={{
+                    color: password.length === 0
+                      ? "var(--cn-dim)"
                       : passwordMeetsLength
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-red-500 dark:text-red-400"
-                  }`}>
+                      ? "#7BD88F"
+                      : "#FC618D",
+                  }}>
                     At least {MIN_PASSWORD_LENGTH} characters
                   </span>
                 </div>
@@ -293,16 +353,24 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2.5 text-sm font-semibold rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
               >
-                {loading ? "Creating account..." : "Create account"}
+                {loading ? "Creating account…" : "Create account"}
               </button>
             </form>
           </div>
 
-          <p className="text-center text-sm text-neutral-500 dark:text-neutral-400 mt-5">
+          <p className="text-center mt-5 animate-fade-up" style={{ fontSize: 14, color: "var(--cn-muted)", animationDelay: "220ms" }}>
             Already have an account?{" "}
-            <Link href="/login" className="text-neutral-900 dark:text-neutral-100 font-medium hover:underline">
+            <Link
+              href="/login"
+              style={{ color: "var(--cn-accent)", fontWeight: 600, textDecoration: "none" }}
+              onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}
+            >
               Sign in
             </Link>
           </p>

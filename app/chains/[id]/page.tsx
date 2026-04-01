@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { Header } from "@/components/Header";
@@ -189,96 +189,96 @@ export default function ChainDetailPage() {
     return null;
   }
 
-  return (
-    <Layout header={<Header promptCount={prompts.length} />} sidebar={null}>
-      <div className="max-w-3xl mx-auto">
-        <Link
-          href="/chains"
-          className="inline-flex items-center text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors mb-6 sm:mb-8"
-        >
-          &larr; Back to Chains
-        </Link>
+  const labelStyle: React.CSSProperties = {
+    display: "block", fontSize: 11, fontWeight: 700,
+    textTransform: "uppercase", letterSpacing: "0.08em",
+    color: "var(--cn-muted)", marginBottom: 6,
+  };
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "9px 12px",
+    background: "var(--cn-bg-s2)", border: "1px solid var(--cn-border)",
+    borderRadius: 8, fontSize: 13, color: "var(--cn-text)",
+    outline: "none", transition: "border-color 0.15s",
+    boxSizing: "border-box",
+  };
 
-        {/* Loading state */}
+  return (
+    <Layout header={<Header />} sidebar={null}>
+      <div className="animate-fade-up" style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+          <Link
+            href="/chains"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--cn-muted)", textDecoration: "none", transition: "color 0.15s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
+          >
+            ← Back to Threads
+          </Link>
+        </div>
+
+        {/* Loading */}
         {loading && (
-          <div className="flex items-center justify-center py-16">
-            <div className="text-sm text-neutral-500 dark:text-neutral-400">
-              Loading chain...
-            </div>
+          <div style={{ display: "flex", justifyContent: "center", padding: "64px 0" }}>
+            <span style={{ fontSize: 13, color: "var(--cn-muted)" }}>Loading thread...</span>
           </div>
         )}
 
-        {/* Error state (when chain not found) */}
+        {/* Error - not found */}
         {!loading && error && !chain && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-sm text-red-600 dark:text-red-400 mb-4">
-              {error}
-            </p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "64px 0", textAlign: "center", gap: 16 }}>
+            <p style={{ fontSize: 13, color: "#ef4444" }}>{error}</p>
             <Link
               href="/chains"
-              className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors"
+              style={{ padding: "9px 20px", background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)", borderRadius: 99, fontSize: 13, fontWeight: 600, textDecoration: "none" }}
             >
-              Back to Chains
+              Back to Threads
             </Link>
           </div>
         )}
 
-        {/* Chain content */}
+        {/* Content */}
         {!loading && chain && (
           <>
-            {/* Inline error banner */}
             {error && (
-              <div className="p-3 sm:p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300 mb-6">
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", fontSize: 13, color: "#ef4444", marginBottom: 20 }}>
                 {error}
               </div>
             )}
 
-            {/* ====== EDIT MODE ====== */}
+            {/* ── EDIT MODE ── */}
             {editing ? (
               <>
-                <div className="space-y-4 mb-8">
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Title
-                    </label>
+                    <label style={labelStyle}>Title</label>
                     <input
                       type="text"
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
-                      placeholder="Chain title"
-                      className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+                      placeholder="Thread title"
+                      style={inputStyle}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Description
-                      <span className="ml-1 text-neutral-400 dark:text-neutral-500 font-normal">
-                        (optional)
-                      </span>
+                    <label style={labelStyle}>
+                      Description <span style={{ fontWeight: 400, textTransform: "none", color: "var(--cn-dim)" }}>(optional)</span>
                     </label>
                     <textarea
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
-                      placeholder="Describe what this chain does..."
+                      placeholder="Describe what this thread does..."
                       rows={2}
-                      className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 resize-y"
+                      style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
                     />
                   </div>
                 </div>
 
-                {/* Steps editor */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base sm:text-lg font-medium text-neutral-900 dark:text-neutral-100">
-                      Steps
-                    </h2>
-                    <span className="text-xs text-neutral-400 dark:text-neutral-500">
-                      {editSteps.length}{" "}
-                      {editSteps.length === 1 ? "step" : "steps"}
-                    </span>
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                    <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--cn-text)" }}>Steps</h2>
+                    <span style={{ fontSize: 12, color: "var(--cn-dim)" }}>{editSteps.length} {editSteps.length === 1 ? "step" : "steps"}</span>
                   </div>
-
-                  <div className="space-y-4">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {editSteps.map((step, index) => (
                       <ChainStepCard
                         key={step.id}
@@ -292,94 +292,93 @@ export default function ChainDetailPage() {
                       />
                     ))}
                   </div>
-
                   <button
                     type="button"
                     onClick={handleAddStep}
-                    className="mt-4 w-full py-3 border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:border-neutral-400 dark:hover:border-neutral-600 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
+                    style={{
+                      marginTop: 12, width: "100%", padding: "12px",
+                      border: "2px dashed var(--cn-border)", borderRadius: 10,
+                      fontSize: 13, fontWeight: 500, color: "var(--cn-muted)",
+                      background: "transparent", cursor: "pointer",
+                      transition: "border-color 0.15s, color 0.15s",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--cn-accent)"; e.currentTarget.style.color = "var(--cn-accent)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--cn-border)"; e.currentTarget.style.color = "var(--cn-muted)"; }}
                   >
                     + Add Step
                   </button>
                 </div>
 
-                {/* Edit actions */}
-                <div className="flex items-center gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 16, borderTop: "1px solid var(--cn-border-s)" }}>
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="px-6 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      padding: "9px 24px",
+                      background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)",
+                      border: "none", borderRadius: 99,
+                      fontSize: 13, fontWeight: 600, cursor: "pointer",
+                      opacity: saving ? 0.6 : 1, transition: "opacity 0.15s",
+                    }}
                   >
                     {saving ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     onClick={cancelEditing}
                     disabled={saving}
-                    className="px-4 py-2.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                    style={{ fontSize: 13, color: "var(--cn-muted)", background: "none", border: "none", cursor: "pointer", transition: "color 0.15s" }}
+                    onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text)")}
+                    onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
                   >
                     Cancel
                   </button>
                 </div>
               </>
             ) : (
-              /* ====== VIEW MODE ====== */
+              /* ── VIEW MODE ── */
               <>
-                {/* Chain header */}
-                <div className="mb-6 sm:mb-8">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
-                    <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+                <div style={{ marginBottom: 28 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+                    <h1 style={{ fontSize: 24, fontWeight: 900, color: "var(--cn-text)", letterSpacing: "-0.025em" }}>
                       {chain.title}
                     </h1>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button
-                        onClick={startEditing}
-                        className="px-3 py-1.5 text-sm bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-full transition-colors"
-                      >
-                        Edit
-                      </button>
-                    </div>
+                    <button
+                      onClick={startEditing}
+                      style={{
+                        padding: "7px 16px", fontSize: 12, fontWeight: 600,
+                        background: "var(--cn-bg-s2)", color: "var(--cn-text2)",
+                        border: "1px solid var(--cn-border)", borderRadius: 99,
+                        cursor: "pointer", transition: "background 0.15s",
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "var(--cn-bg-s3)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "var(--cn-bg-s2)")}
+                    >
+                      Edit
+                    </button>
                   </div>
                   {chain.description && (
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
-                      {chain.description}
-                    </p>
+                    <p style={{ fontSize: 14, color: "var(--cn-muted)", marginBottom: 12 }}>{chain.description}</p>
                   )}
-                  <div className="flex items-center gap-4 text-xs text-neutral-400 dark:text-neutral-500">
-                    <span>
-                      {chain.steps.length}{" "}
-                      {chain.steps.length === 1 ? "step" : "steps"}
-                    </span>
-                    <span>
-                      Created{" "}
-                      {new Date(chain.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 12, color: "var(--cn-dim)" }}>
+                    <span>{chain.steps.length} {chain.steps.length === 1 ? "step" : "steps"}</span>
+                    <span>Created {new Date(chain.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                     {chain.isPublic && <span>Public</span>}
                   </div>
                 </div>
 
-                {/* Steps display */}
-                <div className="mb-8">
-                  <h2 className="text-base sm:text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-                    Steps
-                  </h2>
+                <div style={{ marginBottom: 32 }}>
+                  <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--cn-text)", marginBottom: 16 }}>Steps</h2>
                   {chain.steps.length === 0 ? (
-                    <p className="text-sm text-neutral-400 dark:text-neutral-500 py-8 text-center">
-                      This chain has no steps. Click Edit to add some.
+                    <p style={{ fontSize: 13, color: "var(--cn-muted)", textAlign: "center", padding: "32px 0" }}>
+                      This thread has no steps. Click Edit to add some.
                     </p>
                   ) : (
-                    <div className="space-y-4">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                       {chain.steps.map((step, index) => (
                         <ChainStepCard
                           key={step.id}
-                          step={{
-                            id: step.id,
-                            title: step.title,
-                            content: step.content,
-                            outputVariable: step.outputVariable,
-                          }}
+                          step={{ id: step.id, title: step.title, content: step.content, outputVariable: step.outputVariable }}
                           index={index}
                           totalCount={chain.steps.length}
                           onMoveUp={() => {}}
@@ -393,33 +392,45 @@ export default function ChainDetailPage() {
                   )}
                 </div>
 
-                {/* Delete section */}
-                <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800">
+                {/* Delete */}
+                <div style={{ paddingTop: 20, borderTop: "1px solid var(--cn-border-s)" }}>
                   {!showDeleteConfirm ? (
                     <button
                       onClick={() => setShowDeleteConfirm(true)}
-                      className="text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                      style={{ fontSize: 13, color: "#ef4444", background: "none", border: "none", cursor: "pointer", transition: "opacity 0.15s" }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                     >
-                      Delete this chain
+                      Delete this thread
                     </button>
                   ) : (
-                    <div className="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg">
-                      <p className="text-sm text-neutral-900 dark:text-neutral-100 mb-3">
-                        Are you sure you want to delete &ldquo;{chain.title}
-                        &rdquo;? This action cannot be undone.
+                    <div style={{ padding: "16px", borderRadius: 10, background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)" }}>
+                      <p style={{ fontSize: 13, color: "var(--cn-text)", marginBottom: 12 }}>
+                        Are you sure you want to delete &ldquo;{chain.title}&rdquo;? This cannot be undone.
                       </p>
-                      <div className="flex items-center gap-3">
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <button
                           onClick={handleDelete}
                           disabled={deleting}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{
+                            padding: "7px 16px",
+                            background: "#ef4444", color: "#fff",
+                            border: "none", borderRadius: 99,
+                            fontSize: 13, fontWeight: 600, cursor: "pointer",
+                            opacity: deleting ? 0.6 : 1,
+                          }}
                         >
                           {deleting ? "Deleting..." : "Confirm Delete"}
                         </button>
                         <button
                           onClick={() => setShowDeleteConfirm(false)}
                           disabled={deleting}
-                          className="px-4 py-2 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm font-medium rounded-full transition-colors"
+                          style={{
+                            padding: "7px 16px",
+                            background: "var(--cn-bg-s2)", color: "var(--cn-text2)",
+                            border: "1px solid var(--cn-border)", borderRadius: 99,
+                            fontSize: 13, fontWeight: 500, cursor: "pointer",
+                          }}
                         >
                           Cancel
                         </button>

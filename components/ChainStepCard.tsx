@@ -34,96 +34,100 @@ export function ChainStepCard({
     !!step.outputVariable && step.outputVariable.length > 0
   );
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "8px 12px",
+    background: "var(--cn-bg-s2)", border: "1px solid var(--cn-border)",
+    borderRadius: 8, fontSize: 13, color: "var(--cn-text)",
+    outline: "none", transition: "border-color 0.15s",
+    boxSizing: "border-box",
+  };
+
   return (
-    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 sm:p-6 relative group">
-      {/* Step number badge and controls row */}
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <span className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-sm font-semibold flex-shrink-0">
+    <div style={{
+      background: "var(--cn-bg-card)",
+      border: "1px solid var(--cn-border)",
+      borderRadius: 12, padding: "18px 20px",
+      position: "relative",
+    }}>
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
+          <span style={{
+            flexShrink: 0,
+            width: 28, height: 28, borderRadius: "50%",
+            background: "var(--cn-btn-bg)", color: "var(--cn-btn-tx)",
+            fontSize: 12, fontWeight: 700,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
             {index + 1}
           </span>
           {readonly ? (
-            <h3 className="text-sm sm:text-base font-medium text-neutral-900 dark:text-neutral-100">
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--cn-text)" }}>
               {step.title || `Step ${index + 1}`}
             </h3>
           ) : (
             <input
               type="text"
               value={step.title}
-              onChange={(e) =>
-                onChange(index, { ...step, title: e.target.value })
-              }
+              onChange={(e) => onChange(index, { ...step, title: e.target.value })}
               placeholder={`Step ${index + 1} title`}
-              className="flex-1 min-w-0 px-3 py-1.5 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+              style={{ ...inputStyle, flex: 1 }}
             />
           )}
         </div>
 
         {!readonly && (
-          <div className="flex items-center gap-1">
-            {/* Move Up */}
+          <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0, marginLeft: 8 }}>
             <button
               type="button"
               onClick={() => onMoveUp(index)}
               disabled={index === 0}
               aria-label="Move step up"
-              className="p-1.5 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              style={{
+                padding: 6, borderRadius: "50%", border: "none",
+                background: "transparent", cursor: index === 0 ? "not-allowed" : "pointer",
+                color: "var(--cn-muted)", opacity: index === 0 ? 0.3 : 1,
+                transition: "background 0.12s",
+              }}
+              onMouseEnter={e => { if (index !== 0) e.currentTarget.style.background = "var(--cn-bg-s2)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 15l7-7 7 7"
-                />
+              <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
               </svg>
             </button>
-            {/* Move Down */}
             <button
               type="button"
               onClick={() => onMoveDown(index)}
               disabled={index === totalCount - 1}
               aria-label="Move step down"
-              className="p-1.5 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              style={{
+                padding: 6, borderRadius: "50%", border: "none",
+                background: "transparent", cursor: index === totalCount - 1 ? "not-allowed" : "pointer",
+                color: "var(--cn-muted)", opacity: index === totalCount - 1 ? 0.3 : 1,
+                transition: "background 0.12s",
+              }}
+              onMouseEnter={e => { if (index !== totalCount - 1) e.currentTarget.style.background = "var(--cn-bg-s2)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
+              <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            {/* Remove */}
             <button
               type="button"
               onClick={() => onRemove(index)}
               aria-label="Remove step"
-              className="p-1.5 rounded-full text-neutral-400 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              style={{
+                padding: 6, borderRadius: "50%", border: "none",
+                background: "transparent", cursor: "pointer",
+                color: "var(--cn-dim)", transition: "background 0.12s, color 0.12s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(220,38,38,0.08)"; e.currentTarget.style.color = "#ef4444"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--cn-dim)"; }}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -131,78 +135,80 @@ export function ChainStepCard({
       </div>
 
       {/* Content */}
-      {readonly ? (
-        <div className="pl-9 sm:pl-11">
-          <p className="text-sm text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap">
-            {step.content}
-          </p>
-          {step.outputVariable && (
-            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-              Output variable:{" "}
-              <code className="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 font-mono text-neutral-700 dark:text-neutral-300">
-                {step.outputVariable}
-              </code>
+      <div style={{ paddingLeft: 40 }}>
+        {readonly ? (
+          <>
+            <p style={{ fontSize: 13, color: "var(--cn-text2)", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+              {step.content}
             </p>
-          )}
-        </div>
-      ) : (
-        <div className="pl-9 sm:pl-11 space-y-3">
-          <textarea
-            value={step.content}
-            onChange={(e) =>
-              onChange(index, { ...step, content: e.target.value })
-            }
-            placeholder="Enter the prompt content for this step..."
-            rows={4}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 resize-y font-mono"
-          />
-
-          {/* Advanced section toggle */}
-          <button
-            type="button"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors flex items-center gap-1"
-          >
-            <svg
-              className={`w-3 h-3 transition-transform ${showAdvanced ? "rotate-90" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-            Advanced options
-          </button>
-
-          {showAdvanced && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400">
-                Output Variable Name
-              </label>
-              <input
-                type="text"
-                value={step.outputVariable || ""}
-                onChange={(e) =>
-                  onChange(index, {
-                    ...step,
-                    outputVariable: e.target.value || undefined,
-                  })
-                }
-                placeholder="e.g. step1_output"
-                className="w-full max-w-xs px-3 py-1.5 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 font-mono"
-              />
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
-                Name this step&apos;s output so later steps can reference it.
+            {step.outputVariable && (
+              <p style={{ marginTop: 8, fontSize: 12, color: "var(--cn-muted)" }}>
+                Output variable:{" "}
+                <code style={{
+                  padding: "1px 6px", borderRadius: 4,
+                  background: "var(--cn-bg-s2)", fontFamily: "ui-monospace,monospace",
+                  fontSize: 11, color: "var(--cn-text2)",
+                }}>
+                  {step.outputVariable}
+                </code>
               </p>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <textarea
+              value={step.content}
+              onChange={(e) => onChange(index, { ...step, content: e.target.value })}
+              placeholder="Enter the prompt content for this step..."
+              rows={4}
+              style={{
+                ...inputStyle,
+                fontFamily: "inherit",
+                resize: "vertical", lineHeight: 1.75,
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                fontSize: 11, color: "var(--cn-muted)",
+                background: "none", border: "none", cursor: "pointer",
+                transition: "color 0.12s", alignSelf: "flex-start",
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = "var(--cn-text2)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "var(--cn-muted)")}
+            >
+              <svg
+                style={{ width: 11, height: 11, transition: "transform 0.15s", transform: showAdvanced ? "rotate(90deg)" : "rotate(0deg)" }}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              Advanced options
+            </button>
+
+            {showAdvanced && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--cn-muted)" }}>
+                  Output Variable Name
+                </label>
+                <input
+                  type="text"
+                  value={step.outputVariable || ""}
+                  onChange={(e) => onChange(index, { ...step, outputVariable: e.target.value || undefined })}
+                  placeholder="e.g. step1_output"
+                  style={{ ...inputStyle, maxWidth: 280, fontFamily: "ui-monospace,monospace" }}
+                />
+                <p style={{ fontSize: 11, color: "var(--cn-dim)" }}>
+                  Name this step&apos;s output so later steps can reference it.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
