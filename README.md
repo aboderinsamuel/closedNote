@@ -140,13 +140,9 @@ Users without API keys get full prompt management + offline OCR. AI features unl
 
 ## 🧪 Tests
 
-![Test Results](./screenshots/test.png)
+All tests passing across authentication logic and UI components, including build, lint, type check, and environment validation, verified by CI/CD pipeline with Vercel deployment.
 
-25 tests passing across auth logic and UI components.
-
-```bash
-npm test
-```
+![CI Tests Passing](./screenshots/ci-tests.png)
 ---
 
 ## ⚡ Run Locally
