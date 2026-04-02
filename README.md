@@ -5,9 +5,11 @@
 # closedNote
 
 > **Prompts are living documents. closedNote is the only prompt manager that remembers how they evolved.**
+
 <h3 align="center">
   <a href="https://closednote.vercel.app">👉 Live at closednote.vercel.app</a>
 </h3>
+
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
