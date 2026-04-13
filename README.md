@@ -4,7 +4,7 @@
 
 # closedNote
 
-> **Prompts are living documents. closedNote is the only prompt manager that remembers how they evolved.**
+> **closedNote is a Git-inspired version control system for AI workflows enabling branching, versioning, and reproducible prompt execution pipelines.**
 
 <h3 align="center">
   <a href="https://closednote.vercel.app">👉 Live at closednote.vercel.app</a>
